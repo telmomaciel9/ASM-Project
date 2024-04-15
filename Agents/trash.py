@@ -1,0 +1,21 @@
+from spade import agent
+
+from Behaviours.Trash.informCapacity_Behav import InformCapacity_Behav
+from Behaviours.Trash.disposeTrash_Behav import DisposeTrash_Behav
+
+class Trash(agent.Agent):
+
+    trash_capacity = 100
+    current_occupancy = 0
+
+    async def setup(self):
+        print("Trash Agent '{}'".format(str(self.jid)) + " starting...")
+
+        self.trash_capacity = 100 # max trash capacity
+        self.current_occupancy = 0 # current occupancy of the trash (max is trash_capacity)
+
+        a = InformCapacity_Behav(period = 1) # every 15 minutes, inform the occupancy of the trash to the central
+        b = DisposeTrash_Behav()
+
+        self.add_behaviour(a)
+        self.add_behaviour(b)
