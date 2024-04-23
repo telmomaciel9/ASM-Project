@@ -1,6 +1,7 @@
 from spade import quit_spade
 import time 
 from maps import GraphMap
+import asyncio
 
 from Agents.center import CollectionCenter
 from Agents.collector import TrashCollector
@@ -32,23 +33,23 @@ if __name__ == '__main__':
     # associate the trash collector agents to the collection center agent
     center_agent.set_collectors(collector_agents)
     map1 = GraphMap(trash_agents, center_agent)
-
+        
     center_agent.set('map', map1) # set the map of trash agents and central
-    center_agent.start() # Execute collection center agent
+    future = center_agent.start() # Execute collection center agent
+    future.result()
 
     # execute trash agents
     for trash_agent in trash_agents:
         trash_agent.set('center_jid', center_jid)
-        res_trash = trash_agent.start()
-        res_trash.result()
+        future = trash_agent.start()
+        future.result()
         # trash_agent.web.start(hostname="127.0.0.1", port=10000)
 
     # execute trash collector agents
     for collector_agent in collector_agents:
         collector_agent.set('center_jid', center_jid)
-        res_collector = collector_agent.start()
-        res_collector.result()
-
+        future = collector_agent.start()
+        future.result()
 
 
     while center_agent.is_alive():
