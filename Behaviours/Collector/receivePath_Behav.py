@@ -23,6 +23,7 @@ class ReceivePath_Behav(CyclicBehaviour):
                 data = json.loads(msg.body)  # deserialize JSON back to a path
                 path = data["path"]
                 cost = data["cost"]
+                routes = data["routes"]
 
                 if path[0] == str(self.get('center_jid')):
                     # if the first location is the collection center, remove this from the path (because the trash collector starts there)
@@ -30,13 +31,17 @@ class ReceivePath_Behav(CyclicBehaviour):
 
                 # we zip path from the 1st index because the 0th index is the start location.
                 # The trash collector is already in the start location therefore we skip that
-                path_cost = list(zip(path, cost))
+                path_cost_route = list(zip(path, cost, routes))
 
-                for next_location, cost in path_cost:
+                for next_location, cost, route in path_cost_route:
                     # go to next_location
                     # sleep for 'cost'
                     print(f"Collector: Going to {next_location}, cost is {cost}")
-                    await asyncio.sleep(1)  # Use asyncio.sleep instead of time.sleep
+                    destination_pos = self.agent.jid_to_position_dict[next_location]
+                    self.agent.go_to_position(route)
+                    #self.agent.go_to_position(destination_pos)
+                    while self.agent.position != destination_pos:
+                        await asyncio.sleep(0.25)  # Use asyncio.sleep instead of time.sleep
 
                     # now that we are at the next trash's location, we inform it how much more capacity can this collector hold
                     max_additional_capacity = self.agent.collector_capacity - self.agent.current_occupancy
@@ -60,9 +65,12 @@ class ReceivePath_Behav(CyclicBehaviour):
                             data = json.loads(msg.body)  # deserialize JSON back to a path
                             trash_to_dispose = data
                             self.agent.current_occupancy = min(self.agent.current_occupancy + trash_to_dispose, self.agent.collector_capacity)
-                            print(f"Collector: Current occupancy is now {self.agent.current_occupancy}")             
+                            print(f"Collector: Current occupancy is now {self.agent.current_occupancy}")
+                        elif performative == 'answer_center':
+                            print(f"Collector: Received answer from center")
+                            pass
                         else:
-                            print("Agent {}:".format(str(self.agent.name)) + " Message not understood!")
+                            print("Agent {}:".format(str(self.agent.name)) + f" Message not understood! Performative - {performative}")
                     
 
 

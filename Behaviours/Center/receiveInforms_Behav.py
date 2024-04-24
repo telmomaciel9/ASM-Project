@@ -24,7 +24,7 @@ class ReceiveInforms_Behav(CyclicBehaviour):
                 occupancy = data["current_occupancy"]
                 self.agent.trash_occupancies[trash_name] = int(occupancy)
                 
-                print("Center: Trash {} has current occupancy {}".format(trash_name, occupancy))
+                # print("Center: Trash {} has current occupancy {}".format(trash_name, occupancy))
 
                 total_occupancy_threshold = 100
                 # If the trash occupancy of all trashes combined subtracted by the total capacity of collectors on the road excedes the threshold, we send a collector
@@ -35,10 +35,11 @@ class ReceiveInforms_Behav(CyclicBehaviour):
                         # set the trash collector availability to False, because it is going to be used for the next collection
                         self.agent.set_collector_availability(available_collector_jid,False)
                         # get the best path from the central to the trashes and back
-                        path, cost = self.agent.get_best_path()
+                        path, cost, routes = self.agent.get_best_path()
                         data = {
                             "path": path,
-                            "cost": cost
+                            "cost": cost,
+                            "routes": routes,
                         }
                         # create the message with destination to the trash collector
                         msg = Message(to=available_collector_jid)
@@ -48,13 +49,20 @@ class ReceiveInforms_Behav(CyclicBehaviour):
 
                         await self.send(msg) # send msg to collection center
                     else:
-                        print("There are no available trash collectors!")
+                        print("Center: There are no available trash collectors!")
             elif performative == 'collector_inform':
                 data = json.loads(msg.body)  # deserialize JSON back to a Python dictionary
                 collector_jid = data["collector_jid"]
                 print(f"Center: {collector_jid} has returned to the Collection Center!")
                 # this trash collector has returned, so we set its availability to True
                 self.agent.set_collector_availability(collector_jid, True)
+
+                # setup answer message to trash collector agent
+                msg = Message(to=collector_jid)
+                # the body of the message contains only the path of the trash collector
+                #msg.body = json.dumps(json.dumps({})) # empty message
+                msg.set_metadata("performative", "answer_center") # set the message metadata
+                await self.send(msg) # send message to collector
             else:
                 print("Agent {}:".format(str(self.agent.name)) + " Message not understood!")
         else:

@@ -1,4 +1,5 @@
-
+import osmnx as ox
+import networkx as nx
 
 
 def _find_next_location(current_location, visited, distance_matrix, trash_occupancy):
@@ -70,3 +71,14 @@ def greedy_path_with_capacity(start_location, distance_matrix, trash_occupancy, 
 
     path.append(start_location)  # Ensure the path ends at the start location
     return path
+
+# finds route between two tuples (latitude, longitude)
+def find_route(G, orig_point, dest_point):
+    # Use the new method to find the nearest nodes
+    orig_node = ox.distance.nearest_nodes(G, orig_point[1], orig_point[0])
+    dest_node = ox.distance.nearest_nodes(G, dest_point[1], dest_point[0])
+    route_nodes = nx.shortest_path(G, orig_node, dest_node, weight='length')
+    
+    # Convert node IDs to (latitude, longitude) pairs
+    route_latlon = [(G.nodes[node]['y'], G.nodes[node]['x']) for node in route_nodes]
+    return route_latlon

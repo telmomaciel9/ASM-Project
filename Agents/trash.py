@@ -13,6 +13,11 @@ class Trash(agent.Agent):
 
         self.trash_capacity = 100 # max trash capacity
         self.current_occupancy = 0 # current occupancy of the trash (max is trash_capacity)
+        
+        if self.get("position"):
+            self.position = self.get("position")
+        else:
+            print(f"Trash Agent {self.jid}: position not defined!")
 
         a = InformCapacity_Behav(period = 1) # every 15 minutes, inform the occupancy of the trash to the central
         b = DisposeTrash_Behav()

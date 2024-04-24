@@ -6,6 +6,8 @@ import asyncio
 from Agents.center import CollectionCenter
 from Agents.collector import TrashCollector
 from Agents.trash import Trash
+from Shared.Position import Position
+from simulation import Simulator
 
 XMPP_SERVER = 'ubuntu.myguest.virtualbox.org' #put your XMPP_SERVER
 PASSWORD = 'NOPASSWORD' #put your password
@@ -24,37 +26,78 @@ if __name__ == '__main__':
     # create the jid of the collection center
     center_jid = "center@"+XMPP_SERVER
 
+    # create position objects of the agents
+    center_position = Position(41.558058, -8.398085)
+    # trash_positions = [
+    #     Position(41.555948, -8.401759),
+    #     Position(41.561648, -8.398976),
+    #     Position(41.558019, -8.393719),
+    #     Position(41.558019, -8.393719),
+    # ]
+    trash_positions = [
+        Position(41.553745493456525, -8.406752279492304),
+        Position(41.56083607009294, -8.405753291742863),
+        Position(41.561316158949744, -8.393589790607058),
+        Position(41.56471332007074, -8.398545822233055),
+    ]
+
+    jids_to_position_dict = {agent_jid:pos for agent_jid,pos in zip(trash_jids + [center_jid], trash_positions + [center_position])}
+
     # create Collection Center agent
     center_agent = CollectionCenter(center_jid, PASSWORD)
     # create Trash agents
-    trash_agents = [Trash(jid, PASSWORD) for jid in trash_jids]
+    trash_agents = []
+    for i, jid in enumerate(trash_jids):
+        trash_agent = Trash(jid, PASSWORD)
+        trash_agent.set('center_jid', center_jid)
+        trash_agent.set('position', trash_positions[i]) # set the position of the trash
+        trash_agents.append(trash_agent)
     # create Trash Collector agents
-    collector_agents = [TrashCollector(jid, PASSWORD) for jid in collector_jids]
+    collector_agents = []
+    for i, jid in enumerate(collector_jids):
+        collector_agent = TrashCollector(jid, PASSWORD)
+        collector_agent.set('center_jid', center_jid)
+        collector_agent.set('position', center_position) # set the position of the agent to the center position (trash collectors start at the center)
+        collector_agent.set('positions', jids_to_position_dict)
+        collector_agents.append(collector_agent)
+
+
+
     # associate the trash collector agents to the collection center agent
     center_agent.set_collectors(collector_agents)
-    map1 = GraphMap(trash_agents, center_agent)
-        
-    center_agent.set('map', map1) # set the map of trash agents and central
+    center_agent.set('position', center_position) # set the map of trash agents and central
+
+    map_image_file = 'images/map_image.png'
+    truck_image_file = 'images/truck_icon.png'
+    trash_image_file = 'images/trash_icon.png'
+    # create entity that will visually simulate the interactions between the agents
+    simulator = Simulator(map_image_file, truck_image_file, trash_image_file, n_collectors, n_trashes, center_position)
+    # create the data structure that holds the information about the environment and the routes
+    map1 = GraphMap(trash_agents, center_agent, simulator.G)
+
+    center_agent.set_map(map1) # set the map of trash agents and central
+
+    # start center agent
     future = center_agent.start() # Execute collection center agent
-    future.result()
+    future.result() # wait for the agent to start
 
     # execute trash agents
-    for trash_agent in trash_agents:
-        trash_agent.set('center_jid', center_jid)
-        future = trash_agent.start()
-        future.result()
-        # trash_agent.web.start(hostname="127.0.0.1", port=10000)
+    for i, trash_agent in enumerate(trash_agents):
+        future = trash_agent.start() # start the trash agent
+        future.result() # wait for the agent to start
 
     # execute trash collector agents
     for collector_agent in collector_agents:
-        collector_agent.set('center_jid', center_jid)
-        future = collector_agent.start()
-        future.result()
+        future = collector_agent.start() # start trash collector agent
+        future.result() # wait for the agent to start
 
 
     while center_agent.is_alive():
         try:
-            time.sleep(1)
+            collector_positions = [collector.position for collector in collector_agents]
+            trash_positions = [trash.position for trash in trash_agents]
+            simulator.update_positions(collector_positions, trash_positions)
+            time.sleep(0.25)
         except KeyboardInterrupt:
             (agent.stop() for agent in trash_agents)
             (agent.stop() for agent in collector_agents)

@@ -15,11 +15,10 @@ class CollectionCenter(agent.Agent):
     async def setup(self):
         print("Collection Center Agent {}".format(str(self.jid)) + " starting...")
         
-        if self.get("map"):
-            #print("Collection Center: Set locations map")
-            self.locations_map = self.get("map")
+        if self.get("position"):
+            self.position = self.get("position")
         else:
-            print("Collection Center: locations map not defined!")
+            print("Collection Center: position not defined!")
 
         a = ReceiveInforms_Behav()
 
@@ -30,6 +29,10 @@ class CollectionCenter(agent.Agent):
             if is_available:
                 return collector_jid
         return None
+
+    def set_map(self, locations_map):
+        print("Collection Center: Set location map")
+        self.locations_map = locations_map
 
     # receives array with trash collector agents and maps their jids to whether or not they are being used on the road (boolean)
     def set_collectors(self, trash_collectors):
@@ -64,6 +67,6 @@ class CollectionCenter(agent.Agent):
     def get_best_path(self):
         # best_path is an array which contains the jid's of the agents in the path
         # cost_array is an array which contains the cost of each transition in the path
-        best_path, cost_array = self.locations_map.find_best_path()
-        return best_path, cost_array
+        best_path, cost_array, routes_array = self.locations_map.find_best_path()
+        return best_path, cost_array, routes_array
 
