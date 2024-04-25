@@ -3,6 +3,7 @@ import time
 from Classes.maps import GraphMap
 import asyncio
 from util import update_interval
+import json
 
 from Agents.center import CollectionCenter
 from Agents.collector import TrashCollector
@@ -10,15 +11,33 @@ from Agents.trash import Trash
 from Classes.Position import Position
 from Classes.simulation import Simulator
 
+def load_config(config_file):
+    with open(config_file, 'r') as file:
+        return json.load(file)
+
 XMPP_SERVER = 'ubuntu.myguest.virtualbox.org' #put your XMPP_SERVER
 PASSWORD = 'NOPASSWORD' #put your password
 
 if __name__ == '__main__':
 
-    # this variable represents the number of trashes in the simulation
-    n_trashes = 4
+    config_path = 'config/config2.json'  # The path to your configuration file
+    config = load_config(config_path)
+
     # this variable represents the number of trash collectors in the simulation
-    n_collectors = 2
+    n_collectors = config['number_of_collectors']
+    # this variable represents the number of trashes in the simulation
+    n_trashes = config['number_of_trashes']
+    # get position objects of the agents
+    center_position = Position(*config['center_position'])
+    trash_positions = [Position(*pos) for pos in config['trash_positions']]
+
+    jump_size = config['jump_size']  # Use this variable where needed in your code
+    update_interval = config['update_interval']  # Update your time.sleep calls with this variable
+    images_directory = config['images_directory']
+
+    map_image_file = f'{images_directory}/map_image.png'
+    truck_image_file = f'{images_directory}/truck_icon.png'
+    trash_image_file = f'{images_directory}/trash_icon.png'
 
     # creates the jids for the trash agents
     trash_jids = [f'trash{i}@'+XMPP_SERVER for i in range(n_trashes)]
@@ -26,15 +45,6 @@ if __name__ == '__main__':
     collector_jids = [f'collector{i}@'+XMPP_SERVER for i in range(n_collectors)]
     # create the jid of the collection center
     center_jid = "center@"+XMPP_SERVER
-
-    # create position objects of the agents
-    center_position = Position(41.558058, -8.398085)
-    trash_positions = [
-        Position(41.553745493456525, -8.406752279492304),
-        Position(41.56083607009294, -8.405753291742863),
-        Position(41.561316158949744, -8.393589790607058),
-        Position(41.56471332007074, -8.398545822233055),
-    ]
 
     jids_to_position_dict = {agent_jid:pos for agent_jid,pos in zip(trash_jids + [center_jid], trash_positions + [center_position])}
 
@@ -57,15 +67,10 @@ if __name__ == '__main__':
         collector_agent.set('positions', jids_to_position_dict)
         collector_agents.append(collector_agent)
 
-
-
     # associate the trash collector agents to the collection center agent
     center_agent.set_collectors(collector_agents)
     center_agent.set('position', center_position) # set the map of trash agents and central
 
-    map_image_file = 'images/map_image.png'
-    truck_image_file = 'images/truck_icon.png'
-    trash_image_file = 'images/trash_icon.png'
     # create entity that will visually simulate the interactions between the agents
     simulator = Simulator(map_image_file, truck_image_file, trash_image_file, n_collectors, n_trashes, center_position)
     # create the data structure that holds the information about the environment and the routes

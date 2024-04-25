@@ -7,13 +7,10 @@ from util import update_interval
 
 class TrashCollector(agent.Agent):
 
-    collector_capacity = 1000
-    current_occupancy = 0
-
     async def setup(self):
         print("Trash Collector Agent {}".format(str(self.jid)) + " starting...")
         
-        self.collector_capacity = 1000 # max collector capacity
+        self.collector_capacity = 500 # max collector capacity
         self.current_occupancy = 0 # current occupancy of the collector (max is collector_capacity)
         
         if self.get("position"):

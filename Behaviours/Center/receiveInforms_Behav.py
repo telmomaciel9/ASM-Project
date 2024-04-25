@@ -29,6 +29,7 @@ class ReceiveInforms_Behav(CyclicBehaviour):
                 # print("Center: Trash {} has current occupancy {}".format(trash_name, occupancy))
 
                 total_occupancy_threshold = 100
+                print(sum(list(self.agent.trash_occupancies.values())) - self.agent.get_collector_capacity_on_the_road())
                 # If the trash occupancy of all trashes combined subtracted by the total capacity of collectors on the road excedes the threshold, we send a collector
                 if (sum(list(self.agent.trash_occupancies.values())) - self.agent.get_collector_capacity_on_the_road()) > 100 and self.agent.get_number_of_available_collectors() >= 0:
                     # calculate path for the trash collector to follow to pick up a lot of trash and in a short distance
