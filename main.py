@@ -1,14 +1,14 @@
 from spade import quit_spade
 import time 
-from maps import GraphMap
+from Classes.maps import GraphMap
 import asyncio
 from util import update_interval
 
 from Agents.center import CollectionCenter
 from Agents.collector import TrashCollector
 from Agents.trash import Trash
-from Shared.Position import Position
-from simulation import Simulator
+from Classes.Position import Position
+from Classes.simulation import Simulator
 
 XMPP_SERVER = 'ubuntu.myguest.virtualbox.org' #put your XMPP_SERVER
 PASSWORD = 'NOPASSWORD' #put your password
@@ -74,17 +74,17 @@ if __name__ == '__main__':
     center_agent.set_map(map1) # set the map of trash agents and central
 
     # start center agent
-    future = center_agent.start() # Execute collection center agent
+    future = center_agent.start(auto_register=True) # Execute collection center agent
     future.result() # wait for the agent to start
 
     # execute trash agents
     for i, trash_agent in enumerate(trash_agents):
-        future = trash_agent.start() # start the trash agent
+        future = trash_agent.start(auto_register=True) # start the trash agent
         future.result() # wait for the agent to start
 
     # execute trash collector agents
     for collector_agent in collector_agents:
-        future = collector_agent.start() # start trash collector agent
+        future = collector_agent.start(auto_register=True) # start trash collector agent
         future.result() # wait for the agent to start
 
 

@@ -1,10 +1,10 @@
 
 import numpy as np
 import random
-from search_algorithms import greedy_path, find_route, greedy_path_with_capacity
+from util import greedy_path, find_route, greedy_path_with_capacity
 import osmnx as ox
 import math
-from Shared.Position import euclidean_dist_vec
+from Classes.Position import euclidean_dist_vec
 
 class GraphMap:
     def __init__(self, trash_agents, central_agent, G):

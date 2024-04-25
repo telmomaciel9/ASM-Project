@@ -1,7 +1,7 @@
 from spade import agent
 from Behaviours.Collector.receivePath_Behav import ReceivePath_Behav
 import threading
-from Shared.Position import interpolate_points, Position
+from Classes.Position import interpolate_points, Position
 import time
 from util import update_interval
 
