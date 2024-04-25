@@ -2,6 +2,7 @@ from spade import quit_spade
 import time 
 from maps import GraphMap
 import asyncio
+from util import update_interval
 
 from Agents.center import CollectionCenter
 from Agents.collector import TrashCollector
@@ -28,12 +29,6 @@ if __name__ == '__main__':
 
     # create position objects of the agents
     center_position = Position(41.558058, -8.398085)
-    # trash_positions = [
-    #     Position(41.555948, -8.401759),
-    #     Position(41.561648, -8.398976),
-    #     Position(41.558019, -8.393719),
-    #     Position(41.558019, -8.393719),
-    # ]
     trash_positions = [
         Position(41.553745493456525, -8.406752279492304),
         Position(41.56083607009294, -8.405753291742863),
@@ -50,6 +45,7 @@ if __name__ == '__main__':
     for i, jid in enumerate(trash_jids):
         trash_agent = Trash(jid, PASSWORD)
         trash_agent.set('center_jid', center_jid)
+        trash_agent.set('id', i)
         trash_agent.set('position', trash_positions[i]) # set the position of the trash
         trash_agents.append(trash_agent)
     # create Trash Collector agents
@@ -96,8 +92,10 @@ if __name__ == '__main__':
         try:
             collector_positions = [collector.position for collector in collector_agents]
             trash_positions = [trash.position for trash in trash_agents]
-            simulator.update_positions(collector_positions, trash_positions)
-            time.sleep(0.25)
+            collector_occupancies = [collector.current_occupancy for collector in collector_agents]
+            trash_occupancies = [trash.current_occupancy for trash in trash_agents]
+            simulator.update_positions(collector_positions, trash_positions, collector_occupancies, trash_occupancies)
+            time.sleep(update_interval)
         except KeyboardInterrupt:
             (agent.stop() for agent in trash_agents)
             (agent.stop() for agent in collector_agents)

@@ -20,9 +20,11 @@ class ReceiveInforms_Behav(CyclicBehaviour):
             performative = msg.get_metadata("performative")
             if performative == 'inform': # Handle trash occupancy inform
                 data = json.loads(msg.body)  # deserialize JSON back to a Python dictionary
-                trash_name = data["name"]
+                #trash_name = data["name"]
+                trash_id = data["name"]
                 occupancy = data["current_occupancy"]
-                self.agent.trash_occupancies[trash_name] = int(occupancy)
+                #self.agent.trash_occupancies[trash_name] = int(occupancy)
+                self.agent.trash_occupancies[trash_id] = int(occupancy)
                 
                 # print("Center: Trash {} has current occupancy {}".format(trash_name, occupancy))
 
@@ -35,7 +37,7 @@ class ReceiveInforms_Behav(CyclicBehaviour):
                         # set the trash collector availability to False, because it is going to be used for the next collection
                         self.agent.set_collector_availability(available_collector_jid,False)
                         # get the best path from the central to the trashes and back
-                        path, cost, routes = self.agent.get_best_path()
+                        path, cost, routes = self.agent.get_best_path(self.agent.trash_occupancies, self.agent.jid_to_collector[available_collector_jid].collector_capacity)
                         data = {
                             "path": path,
                             "cost": cost,

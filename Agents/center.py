@@ -64,9 +64,9 @@ class CollectionCenter(agent.Agent):
         return total_capacity
 
 
-    def get_best_path(self):
+    def get_best_path(self, trash_occupancies_dict, collector_capacity):
         # best_path is an array which contains the jid's of the agents in the path
         # cost_array is an array which contains the cost of each transition in the path
-        best_path, cost_array, routes_array = self.locations_map.find_best_path()
+        best_path, cost_array, routes_array = self.locations_map.find_best_path(trash_occupancies_dict, collector_capacity)
         return best_path, cost_array, routes_array
 

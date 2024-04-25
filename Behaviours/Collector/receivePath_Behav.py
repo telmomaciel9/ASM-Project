@@ -36,12 +36,12 @@ class ReceivePath_Behav(CyclicBehaviour):
                 for next_location, cost, route in path_cost_route:
                     # go to next_location
                     # sleep for 'cost'
-                    print(f"Collector: Going to {next_location}, cost is {cost}")
+                    print("Collector: Going to {}, cost is {:.7f}".format(next_location, cost))
                     destination_pos = self.agent.jid_to_position_dict[next_location]
                     self.agent.go_to_position(route)
                     #self.agent.go_to_position(destination_pos)
                     while self.agent.position != destination_pos:
-                        await asyncio.sleep(0.25)  # Use asyncio.sleep instead of time.sleep
+                        await asyncio.sleep(0.1)  # Use asyncio.sleep instead of time.sleep
 
                     # now that we are at the next trash's location, we inform it how much more capacity can this collector hold
                     max_additional_capacity = self.agent.collector_capacity - self.agent.current_occupancy
@@ -67,8 +67,9 @@ class ReceivePath_Behav(CyclicBehaviour):
                             self.agent.current_occupancy = min(self.agent.current_occupancy + trash_to_dispose, self.agent.collector_capacity)
                             print(f"Collector: Current occupancy is now {self.agent.current_occupancy}")
                         elif performative == 'answer_center':
-                            print(f"Collector: Received answer from center")
-                            pass
+                            # Collector is in the center, so the trash is disposed
+                            print(f"Collector: Received answer from center, disposing trash")
+                            self.agent.current_occupancy = 0
                         else:
                             print("Agent {}:".format(str(self.agent.name)) + f" Message not understood! Performative - {performative}")
                     

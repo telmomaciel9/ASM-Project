@@ -70,6 +70,7 @@ class Simulator:
         # Load the truck icon image
         self.truck_icons = []
         self.trucks = []
+        self.truck_texts = [] # text that represents occupancy of each trash collector
         # global truck_icon
         for i in range(n_collectors):
             truck_icon = ImageTk.PhotoImage(image_truck)
@@ -77,22 +78,35 @@ class Simulator:
             truck = self.canvas.create_image(center_location.tuple(), image=truck_icon)
             self.trucks.append(truck)
             
+            # Create a text item for each truck to display occupancy
+            truck_text = self.canvas.create_text(center_location.tuple(), text="0 kg", anchor="s", fill='white')
+            self.truck_texts.append(truck_text)
+            
         # Load the trash icon image
         self.trash_icons = []
         self.trashes = []
+        self.trash_texts = []
         # global truck_icon
         for i in range(n_trashes):
             trash_icon = ImageTk.PhotoImage(image_trash)
             self.trash_icons.append(trash_icon)
             trash = self.canvas.create_image(center_location.tuple(), image=trash_icon)
             self.trashes.append(trash)
+            
+            # Create a text item for each trash to display occupancy
+            trash_text = self.canvas.create_text(center_location.tuple(), text="0 kg", anchor="s", fill='white')
+            self.trash_texts.append(trash_text)
 
-    def update_positions(self, collector_positions, trash_positions):
+    def update_positions(self, collector_positions, trash_positions, collector_occupancies, trash_occupancies):
         for i, position in enumerate(collector_positions):
             position_pixels = _latlon_to_pixels(position[0], position[1], self.bbox, self.image_size)
             self.canvas.coords(self.trucks[i], *position_pixels)
+            self.canvas.itemconfig(self.truck_texts[i], text=f"{collector_occupancies[i]} kg")
+            self.canvas.coords(self.truck_texts[i], position_pixels[0], position_pixels[1] - 10)
         for i, position in enumerate(trash_positions):
             position_pixels = _latlon_to_pixels(position[0], position[1], self.bbox, self.image_size)
             self.canvas.coords(self.trashes[i], *position_pixels)
+            self.canvas.itemconfig(self.trash_texts[i], text=f"{trash_occupancies[i]} kg")
+            self.canvas.coords(self.trash_texts[i], position_pixels[0], position_pixels[1] - 10)
         self.root.update_idletasks()
-        self.root.after(10)  # Delay between each frame; lower=faster animation
+        #self.root.after(10)  # Delay between each frame; lower=faster animation

@@ -3,6 +3,7 @@ from Behaviours.Collector.receivePath_Behav import ReceivePath_Behav
 import threading
 from Shared.Position import interpolate_points, Position
 import time
+from util import update_interval
 
 class TrashCollector(agent.Agent):
 
@@ -37,7 +38,7 @@ class TrashCollector(agent.Agent):
         with self.lock:
             self.position = new_pos
 
-    def go_to_position(self, route, update_interval=0.25):
+    def go_to_position(self, route):
         def update_positions():
             start_position = self.position
             for route_pos in route:

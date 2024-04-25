@@ -1,7 +1,7 @@
 
 import numpy as np
 import random
-from search_algorithms import greedy_path, find_route
+from search_algorithms import greedy_path, find_route, greedy_path_with_capacity
 import osmnx as ox
 import math
 from Shared.Position import euclidean_dist_vec
@@ -55,8 +55,9 @@ class GraphMap:
                     self.distance_matrix[i][j] = self.distance_matrix[j][i] = route_length
 
 
-    def find_best_path(self):
-        best_path = greedy_path(self.n_locations-1, self.distance_matrix, [])
+    def find_best_path(self, trash_occupancies_dict, collector_capacity):
+        #best_path = greedy_path(self.n_locations-1, self.distance_matrix)
+        best_path = greedy_path_with_capacity(self.n_locations-1, self.distance_matrix, trash_occupancies_dict, collector_capacity)
         # best_path[0] == best_path[-1] -> the start and end location is the same (trash center)
 
         # now we need to change best_path, because it contains the indexes of the agents in the path, instead of their jid's
