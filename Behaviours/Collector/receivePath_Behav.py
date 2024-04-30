@@ -65,7 +65,7 @@ class ReceivePath_Behav(CyclicBehaviour):
                             data = json.loads(msg.body)  # deserialize JSON back to a path
                             trash_to_dispose = data
                             self.agent.current_occupancy = min(self.agent.current_occupancy + trash_to_dispose, self.agent.collector_capacity)
-                            print(f"Collector: Current occupancy is now {self.agent.current_occupancy}")
+                            print(f"Collector: Current occupancy is now {self.agent.current_occupancy:.2f}")
                         elif performative == 'answer_center':
                             # Collector is in the center, so the trash is disposed
                             print(f"Collector: Received answer from center, disposing trash")

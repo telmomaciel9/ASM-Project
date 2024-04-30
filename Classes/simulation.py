@@ -101,12 +101,12 @@ class Simulator:
         for i, position in enumerate(collector_positions):
             position_pixels = _latlon_to_pixels(position[0], position[1], self.bbox, self.image_size)
             self.canvas.coords(self.trucks[i], *position_pixels)
-            self.canvas.itemconfig(self.truck_texts[i], text=f"{collector_occupancies[i]} kg")
+            self.canvas.itemconfig(self.truck_texts[i], text=f"{collector_occupancies[i]:.2f} kg")
             self.canvas.coords(self.truck_texts[i], position_pixels[0], position_pixels[1] - 10)
         for i, position in enumerate(trash_positions):
             position_pixels = _latlon_to_pixels(position[0], position[1], self.bbox, self.image_size)
             self.canvas.coords(self.trashes[i], *position_pixels)
-            self.canvas.itemconfig(self.trash_texts[i], text=f"{trash_occupancies[i]} kg")
+            self.canvas.itemconfig(self.trash_texts[i], text=f"{trash_occupancies[i]:.2f} kg")
             self.canvas.coords(self.trash_texts[i], position_pixels[0], position_pixels[1] - 10)
         self.root.update_idletasks()
         #self.root.after(10)  # Delay between each frame; lower=faster animation

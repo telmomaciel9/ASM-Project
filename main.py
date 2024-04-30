@@ -11,29 +11,29 @@ from Agents.trash import Trash
 from Classes.Position import Position
 from Classes.simulation import Simulator
 
-def load_config(config_file):
-    with open(config_file, 'r') as file:
-        return json.load(file)
+from config import Config
 
 XMPP_SERVER = 'ubuntu.myguest.virtualbox.org' #put your XMPP_SERVER
 PASSWORD = 'NOPASSWORD' #put your password
 
+simulation_update_interval = 0.02
+
 if __name__ == '__main__':
 
-    config_path = 'config/config2.json'  # The path to your configuration file
-    config = load_config(config_path)
+    config_path = 'config/config1.json'  # The path to your configuration file
+    config = Config(config_path)
 
     # this variable represents the number of trash collectors in the simulation
-    n_collectors = config['number_of_collectors']
+    n_collectors = config.n_collectors
     # this variable represents the number of trashes in the simulation
-    n_trashes = config['number_of_trashes']
+    n_trashes = config.n_trashes
     # get position objects of the agents
-    center_position = Position(*config['center_position'])
-    trash_positions = [Position(*pos) for pos in config['trash_positions']]
+    center_position = Position(*config.center_position)
+    trash_positions = [Position(*pos) for pos in config.trash_positions]
 
-    jump_size = config['jump_size']  # Use this variable where needed in your code
-    update_interval = config['update_interval']  # Update your time.sleep calls with this variable
-    images_directory = config['images_directory']
+    jump_size = config.get_jump_size  # Use this variable where needed in your code
+    update_interval = config.get_update_interval  # Update your time.sleep calls with this variable
+    images_directory = config.images_directory
 
     map_image_file = f'{images_directory}/map_image.png'
     truck_image_file = f'{images_directory}/truck_icon.png'
@@ -100,7 +100,7 @@ if __name__ == '__main__':
             collector_occupancies = [collector.current_occupancy for collector in collector_agents]
             trash_occupancies = [trash.current_occupancy for trash in trash_agents]
             simulator.update_positions(collector_positions, trash_positions, collector_occupancies, trash_occupancies)
-            time.sleep(update_interval)
+            time.sleep(simulation_update_interval)
         except KeyboardInterrupt:
             (agent.stop() for agent in trash_agents)
             (agent.stop() for agent in collector_agents)

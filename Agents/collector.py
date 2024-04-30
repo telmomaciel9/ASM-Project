@@ -3,7 +3,7 @@ from Behaviours.Collector.receivePath_Behav import ReceivePath_Behav
 import threading
 from Classes.Position import interpolate_points, Position
 import time
-from util import update_interval
+from config import Config
 
 class TrashCollector(agent.Agent):
 
@@ -23,6 +23,10 @@ class TrashCollector(agent.Agent):
         else:
             print(f"Trash Collector Agent {self.jid}: positions dict not defined!")
 
+        config = Config()
+        self.jump_size = config.jump_size
+        self.update_interval = config.update_interval
+
         self.lock = threading.Lock()  # A lock to synchronize access to the position
 
         a = ReceivePath_Behav()
@@ -40,10 +44,10 @@ class TrashCollector(agent.Agent):
             start_position = self.position
             for route_pos in route:
                 end_position = Position(*route_pos)
-                interpolated_positions = interpolate_points(start_position, end_position)
+                interpolated_positions = interpolate_points(start_position, end_position, self.jump_size)
                 for pos in interpolated_positions:
                     self.update_position(pos) # update position of the trash collector
-                    time.sleep(update_interval)
+                    time.sleep(self.update_interval)
                 start_position = end_position
 
         # execute position updates in a new thread, so as to not block the execution

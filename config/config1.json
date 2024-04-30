@@ -8,7 +8,8 @@
         [41.561316158949744, -8.393589790607058],
         [41.56471332007074, -8.398545822233055]
     ],
-    "jump_size": 0.0001,
-    "update_interval": 0.02,
+    "truck_velocity": 50,
+    "simulation_speed": 50,
+    "trash_occupancy_per_hour": 200,
     "images_directory": "images/"
 }

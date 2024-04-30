@@ -19,7 +19,7 @@ class Trash(agent.Agent):
         else:
             print(f"Trash Agent {self.jid}: position not defined!")
 
-        a = InformCapacity_Behav(period = 1) # every 15 minutes, inform the occupancy of the trash to the central
+        a = InformCapacity_Behav(period = 1)
         b = DisposeTrash_Behav()
 
         self.add_behaviour(a)

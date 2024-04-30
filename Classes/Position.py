@@ -1,7 +1,6 @@
 # Class that represents a location in the map
 from dataclasses import dataclass
 import math
-from util import jump_size
 
 pos_equal_threshold = 0.0005
 
@@ -12,7 +11,6 @@ class Position:
 
     def __eq__(self, otherPos):
         distance = coords_distance(self.latitude, self.longitude, otherPos.latitude, otherPos.longitude)
-        # print(f"distance - {distance}")
         return distance < pos_equal_threshold
         #return self.latitude == otherPos.latitude and self.longitude == otherPos.longitude
 
@@ -31,7 +29,7 @@ class Position:
     def tuple(self):
         return (self.latitude, self.longitude)
 
-def interpolate_points(p1: Position, p2: Position):
+def interpolate_points(p1: Position, p2: Position, jump_size: float):
     #jump_size = 0.0001
     distance = ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2) ** 0.5
     num_points = math.ceil(distance / jump_size) # get number of jumps between the two locations.
