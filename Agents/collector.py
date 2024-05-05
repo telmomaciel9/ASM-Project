@@ -4,6 +4,7 @@ import threading
 from Classes.Position import interpolate_points, Position
 import time
 from config import Config
+from util import jid_to_name
 
 class TrashCollector(agent.Agent):
 

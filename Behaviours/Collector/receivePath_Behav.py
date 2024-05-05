@@ -7,6 +7,7 @@ This behaviour is also responsible for receiving the amount of trash to dispose 
 from spade.message import Message
 from spade.behaviour import CyclicBehaviour
 
+from util import jid_to_name
 import time
 import asyncio  # Import asyncio for asyncio.sleep
 import json
@@ -19,7 +20,7 @@ class ReceivePath_Behav(CyclicBehaviour):
         if msg:
             # Message Threatment based on different ACLMessage performatives
             performative = msg.get_metadata("performative")
-            if performative == 'collect_trash': # Handle request to go collect trash in a path
+            if performative == 'request': # Handle request to go collect trash in a path
                 data = json.loads(msg.body)  # deserialize JSON back to a path
                 path = data["path"]
                 cost = data["cost"]
@@ -36,7 +37,7 @@ class ReceivePath_Behav(CyclicBehaviour):
                 for next_location, cost, route in path_cost_route:
                     # go to next_location
                     # sleep for 'cost'
-                    print("Collector: Going to {}, cost is {:.7f}".format(next_location, cost))
+                    print("{}: Going to {}".format(self.agent.name, jid_to_name(next_location)))
                     destination_pos = self.agent.jid_to_position_dict[next_location]
                     self.agent.go_to_position(route)
                     #self.agent.go_to_position(destination_pos)
@@ -61,22 +62,18 @@ class ReceivePath_Behav(CyclicBehaviour):
                     msg = await self.receive(timeout=5) # wait for the response for 5 seconds
                     if msg:
                         performative = msg.get_metadata("performative")
-                        if performative == 'dispose_trash':
+                        if performative == 'confirm_trash':
                             data = json.loads(msg.body)  # deserialize JSON back to a path
                             trash_to_dispose = data
                             self.agent.current_occupancy = min(self.agent.current_occupancy + trash_to_dispose, self.agent.collector_capacity)
-                            print(f"Collector: Current occupancy is now {self.agent.current_occupancy:.2f}")
-                        elif performative == 'answer_center':
+                            print(f"{self.agent.name}: Current occupancy is now {self.agent.current_occupancy:.2f}")
+                        elif performative == 'confirm_center':
                             # Collector is in the center, so the trash is disposed
-                            print(f"Collector: Received answer from center, disposing trash")
+                            print(f"{self.agent.name}: Received answer from center, disposing trash")
                             self.agent.current_occupancy = 0
                         else:
                             print("Agent {}:".format(str(self.agent.name)) + f" Message not understood! Performative - {performative}")
-                    
-
-
-                # collector has returned to the collection center. Inform the center?
-            elif performative == 'dispose_trash':
+            elif performative == 'confirm_trash':
                 data = json.loads(msg.body)  # deserialize JSON back to a path
                 trash_to_dispose = data
                 self.agent.current_occupancy = min(self.agent.current_occupancy + trash_to_dispose, self.agent.collector_capacity)

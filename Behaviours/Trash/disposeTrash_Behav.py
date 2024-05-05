@@ -1,6 +1,6 @@
 from spade.message import Message
 from spade.behaviour import CyclicBehaviour
-
+from util import jid_to_name
 import json
 
 """
@@ -21,15 +21,15 @@ class DisposeTrash_Behav(CyclicBehaviour):
                 data = json.loads(msg.body)
                 collector_jid = data["collector_jid"]
                 max_additional_capacity = data["max_additional_capacity"]
-                print(f"Trash: {collector_jid} has max additional capacity {max_additional_capacity}")
-
                 trash_to_dispose = min(max_additional_capacity, self.agent.current_occupancy)
+                print(f"{self.agent.name}: Disposing {trash_to_dispose:.2f}kg to {jid_to_name(collector_jid)}")
+
                 # deduct the trash to dispose from the current trash occupancy
                 self.agent.current_occupancy -= trash_to_dispose
 
                 # create message to be sent to the trash collector
                 msg = Message(to=collector_jid)
-                msg.set_metadata("performative", "dispose_trash") # set the message metadata
+                msg.set_metadata("performative", "confirm_trash") # set the message metadata
                 # the only information we need to transmit is the amount of trash to dispose
                 data = trash_to_dispose
                 # convert the data into json

@@ -11,6 +11,10 @@ import osmnx as ox
 import networkx as nx
 import heapq
 
+def jid_to_name(jid):
+    name = jid.split('@')[0]
+    return name
+
 """ SEARCH ALGORITHMS """
 
 def _find_next_location(current_location, visited, distance_matrix):

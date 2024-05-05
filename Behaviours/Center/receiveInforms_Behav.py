@@ -2,6 +2,7 @@ from spade.message import Message
 from spade.behaviour import CyclicBehaviour
 
 import json
+from util import jid_to_name
 
 """
 Collection Center Agent Behaviour
@@ -44,15 +45,15 @@ class ReceiveInforms_Behav(CyclicBehaviour):
                         msg = Message(to=available_collector_jid)
                         # the body of the message contains only the path of the trash collector
                         msg.body = json.dumps(data)
-                        msg.set_metadata("performative", "collect_trash") # set the message metadata
+                        msg.set_metadata("performative", "request") # set the message metadata
 
-                        await self.send(msg) # send msg to collection center
+                        await self.send(msg) # send msg to trash collector
                     else:
                         print("Center: There are no available trash collectors!")
             elif performative == 'collector_inform':
                 data = json.loads(msg.body)  # deserialize JSON back to a Python dictionary
                 collector_jid = data["collector_jid"]
-                print(f"Center: {collector_jid} has returned to the Collection Center!")
+                print(f"Center: {jid_to_name(collector_jid)} has returned to the Collection Center!")
                 # this trash collector has returned, so we set its availability to True
                 self.agent.set_collector_availability(collector_jid, True)
 
@@ -60,7 +61,7 @@ class ReceiveInforms_Behav(CyclicBehaviour):
                 msg = Message(to=collector_jid)
                 # the body of the message contains only the path of the trash collector
                 #msg.body = json.dumps(json.dumps({})) # empty message
-                msg.set_metadata("performative", "answer_center") # set the message metadata
+                msg.set_metadata("performative", "confirm_center") # set the message metadata
                 await self.send(msg) # send message to collector
             else:
                 print("Agent {}:".format(str(self.agent.name)) + " Message not understood!")
