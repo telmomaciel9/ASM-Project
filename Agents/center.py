@@ -1,6 +1,7 @@
 from spade import agent
 
 from Behaviours.Center.receiveInforms_Behav import ReceiveInforms_Behav
+from Behaviours.Center.proposalsCollectors_Behav import ProposeCollectors_Behav
 
 """
 In the simulation, there is only one collection center.
@@ -11,6 +12,7 @@ class CollectionCenter(agent.Agent):
     # maps collectors jids to booleans
     available_collectors = {}
     jid_to_collector = {}
+    collector_proposals = {} # dictionary that stores the path proposals of the trash collectors
 
     async def setup(self):
         print("Collection Center Agent {}".format(str(self.jid)) + " starting...")
@@ -21,14 +23,23 @@ class CollectionCenter(agent.Agent):
             print("Collection Center: position not defined!")
 
         a = ReceiveInforms_Behav()
+        b = ProposeCollectors_Behav(period = 5) # run every 5 seconds
 
         self.add_behaviour(a)
+        self.add_behaviour(b)
 
     def get_available_collector_jid(self):
         for (collector_jid, is_available) in self.available_collectors.items():
             if is_available:
                 return collector_jid
         return None
+
+    def get_available_collectors_jids(self):
+        collector_jids = []
+        for (collector_jid, is_available) in self.available_collectors.items():
+            if is_available:
+                collector_jids.append(collector_jid)
+        return collector_jids
 
     def set_map(self, locations_map):
         print("Collection Center: Set location map")

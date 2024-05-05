@@ -20,23 +20,19 @@ class ReceivePath_Behav(CyclicBehaviour):
         if msg:
             # Message Threatment based on different ACLMessage performatives
             performative = msg.get_metadata("performative")
+            data = json.loads(msg.body)  # deserialize JSON back to a path
             if performative == 'request': # Handle request to go collect trash in a path
-                data = json.loads(msg.body)  # deserialize JSON back to a path
                 path = data["path"]
-                cost = data["cost"]
                 routes = data["routes"]
 
                 if path[0] == str(self.get('center_jid')):
                     # if the first location is the collection center, remove this from the path (because the trash collector starts there)
                     path.pop(0)
 
-                # we zip path from the 1st index because the 0th index is the start location.
-                # The trash collector is already in the start location therefore we skip that
-                path_cost_route = list(zip(path, cost, routes))
+                path_route = list(zip(path, routes))
 
-                for next_location, cost, route in path_cost_route:
+                for next_location, route in path_route:
                     # go to next_location
-                    # sleep for 'cost'
                     print("{}: Going to {}".format(self.agent.name, jid_to_name(next_location)))
                     destination_pos = self.agent.jid_to_position_dict[next_location]
                     self.agent.go_to_position(route)
@@ -74,8 +70,26 @@ class ReceivePath_Behav(CyclicBehaviour):
                         else:
                             print("Agent {}:".format(str(self.agent.name)) + f" Message not understood! Performative - {performative}")
             elif performative == 'confirm_trash':
-                data = json.loads(msg.body)  # deserialize JSON back to a path
                 trash_to_dispose = data
                 self.agent.current_occupancy = min(self.agent.current_occupancy + trash_to_dispose, self.agent.collector_capacity)
+            elif performative == 'cfp':
+                # proposal request
+                locations_map = self.agent.locations_map # get the map with the paths information
+                # convert the dictionary's keys to integer, because json.dumps convert int keys to string
+                trash_occupancies_dict = {int(k): v for k, v in data["trash_occupancies_dict"].items()}
+                best_path, _, routes, rating = self.agent.get_best_path_rating(locations_map, trash_occupancies_dict)
+                # send proposal to the center agent
+                # the proposal contains the best path for this collector, along with the path's rating
+                msg = Message(to=self.get('center_jid'))
+                msg.set_metadata("performative", "propose") # set the message metadata
+                data = {
+                    "collector_jid": str(self.agent.jid),
+                    "best_path": best_path,
+                    "routes": routes,
+                    "rating": rating,
+                }
+                msg.body = json.dumps(data)
+                await self.send(msg) # send msg to collection center / trash
+
             else:
                 print("Agent {}:".format(str(self.agent.name)) + " Message not understood!")

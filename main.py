@@ -55,7 +55,7 @@ if __name__ == '__main__':
     for i, jid in enumerate(trash_jids):
         trash_agent = Trash(jid, PASSWORD)
         trash_agent.set('center_jid', center_jid)
-        trash_agent.set('id', i)
+        trash_agent.set('id', str(i))
         trash_agent.set('position', trash_positions[i]) # set the position of the trash
         trash_agents.append(trash_agent)
     # create Trash Collector agents
@@ -76,7 +76,8 @@ if __name__ == '__main__':
     # create the data structure that holds the information about the environment and the routes
     map1 = GraphMap(trash_agents, center_agent, simulator.G)
 
-    center_agent.set_map(map1) # set the map of trash agents and central
+    for agent in collector_agents + [center_agent]:
+        agent.set_map(map1) # set the map of trash agents and central
 
     # start center agent
     future = center_agent.start(auto_register=True) # Execute collection center agent

@@ -1,8 +1,10 @@
 from spade.message import Message
 from spade.behaviour import CyclicBehaviour
 
+import asyncio
 import json
 from util import jid_to_name
+
 
 """
 Collection Center Agent Behaviour
@@ -19,51 +21,35 @@ class ReceiveInforms_Behav(CyclicBehaviour):
         if msg:
             # Message Threatment based on different ACLMessage performatives
             performative = msg.get_metadata("performative")
+            data = json.loads(msg.body)  # deserialize JSON back to a Python dictionary
             if performative == 'inform': # Handle trash occupancy inform
-                data = json.loads(msg.body)  # deserialize JSON back to a Python dictionary
                 #trash_name = data["name"]
                 trash_id = data["name"]
                 occupancy = data["current_occupancy"]
                 self.agent.trash_occupancies[trash_id] = occupancy
-                
-                total_occupancy_threshold = 100
-                # If the trash occupancy of all trashes combined subtracted by the total capacity of collectors on the road excedes the threshold, we send a collector
-                if (sum(list(self.agent.trash_occupancies.values())) - self.agent.get_collector_capacity_on_the_road()) > 100 and self.agent.get_number_of_available_collectors() >= 0:
-                    # calculate path for the trash collector to follow to pick up a lot of trash and in a short distance
-                    available_collector_jid = self.agent.get_available_collector_jid()
-                    if available_collector_jid is not None:
-                        # set the trash collector availability to False, because it is going to be used for the next collection
-                        self.agent.set_collector_availability(available_collector_jid,False)
-                        # get the best path from the central to the trashes and back
-                        path, cost, routes = self.agent.get_best_path(self.agent.trash_occupancies, self.agent.jid_to_collector[available_collector_jid].collector_capacity)
-                        data = {
-                            "path": path,
-                            "cost": cost,
-                            "routes": routes,
-                        }
-                        # create the message with destination to the trash collector
-                        msg = Message(to=available_collector_jid)
-                        # the body of the message contains only the path of the trash collector
-                        msg.body = json.dumps(data)
-                        msg.set_metadata("performative", "request") # set the message metadata
-
-                        await self.send(msg) # send msg to trash collector
-                    else:
-                        print("Center: There are no available trash collectors!")
             elif performative == 'collector_inform':
-                data = json.loads(msg.body)  # deserialize JSON back to a Python dictionary
+                await self.collector_inform(data)
+            elif performative == 'propose':
+                # received path and rating proposal from collector agent
                 collector_jid = data["collector_jid"]
-                print(f"Center: {jid_to_name(collector_jid)} has returned to the Collection Center!")
-                # this trash collector has returned, so we set its availability to True
-                self.agent.set_collector_availability(collector_jid, True)
-
-                # setup answer message to trash collector agent
-                msg = Message(to=collector_jid)
-                # the body of the message contains only the path of the trash collector
-                #msg.body = json.dumps(json.dumps({})) # empty message
-                msg.set_metadata("performative", "confirm_center") # set the message metadata
-                await self.send(msg) # send message to collector
+                best_path = data["best_path"]
+                routes = data["routes"]
+                rating = data["rating"]
+                self.agent.collector_proposals[collector_jid] = (rating, best_path, routes)
+                print(f"Center: Received proposal from {collector_jid}")
             else:
                 print("Agent {}:".format(str(self.agent.name)) + " Message not understood!")
         else:
             print("Agent {}:".format(str(self.agent.name)) + "Did not received any message after 10 seconds")
+
+    async def collector_inform(self, data):
+        collector_jid = data["collector_jid"]
+        print(f"Center: {jid_to_name(collector_jid)} has returned to the Collection Center!")
+        # this trash collector has returned, so we set its availability to True
+        self.agent.set_collector_availability(collector_jid, True)
+        # setup answer message to trash collector agent
+        send_msg = Message(to=collector_jid)
+        # the body of the message contains only the path of the trash collector
+        #msg.body = json.dumps(json.dumps({})) # empty message
+        send_msg.set_metadata("performative", "confirm_center") # set the message metadata
+        await self.send(send_msg) # send message to collector

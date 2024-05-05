@@ -40,6 +40,10 @@ class TrashCollector(agent.Agent):
         with self.lock:
             self.position = new_pos
 
+    def set_map(self, locations_map):
+        print("Trash Collector: Set location map")
+        self.locations_map = locations_map
+
     def go_to_position(self, route):
         def update_positions():
             start_position = self.position
@@ -55,3 +59,8 @@ class TrashCollector(agent.Agent):
         thread = threading.Thread(target=update_positions)
         thread.daemon = True  # Set as a daemon so it will automatically close when the main program exits
         thread.start()
+
+    def get_best_path_rating(self, locations_map, trash_occupancies_dict):
+        best_path, cost, routes = locations_map.find_best_path(trash_occupancies_dict, self.collector_capacity)
+        rating = 0
+        return best_path, cost, routes, rating

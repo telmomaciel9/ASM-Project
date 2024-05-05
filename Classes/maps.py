@@ -30,15 +30,6 @@ class GraphMap:
 
         self.fill_matrices()
 
-        #min_distance = 5
-        #max_distance = 15
-        ## fill the distance matrix with random values
-        ## the matrix is symmetric, because the distance from 'i' to 'j' is the same as from 'j' to 'i'
-        #for i in range(self.n_locations):
-        #    for j in range(i):
-        #        random_distance = random.randint(min_distance, max_distance)
-        #        self.distance_matrix[i][j] = self.distance_matrix[j][i] = random_distance
-
     def fill_matrices(self):
         for i in range(self.n_locations):
             for j in range(i + 1, self.n_locations):
