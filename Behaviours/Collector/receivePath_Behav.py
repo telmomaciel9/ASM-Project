@@ -21,7 +21,7 @@ class ReceivePath_Behav(CyclicBehaviour):
             # Message Threatment based on different ACLMessage performatives
             performative = msg.get_metadata("performative")
             data = json.loads(msg.body)  # deserialize JSON back to a path
-            if performative == 'request': # Handle request to go collect trash in a path
+            if performative == 'accept-proposal': # Handle request to go collect trash in a path
                 path = data["path"]
                 routes = data["routes"]
 

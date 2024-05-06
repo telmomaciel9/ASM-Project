@@ -42,7 +42,8 @@ class ProposeCollectors_Behav(PeriodicBehaviour):
 
         if self.agent.collector_proposals:
             # Find the collector with the best rating
-            best_collector_jid, (best_rating, best_path, routes) = max(self.agent.collector_proposals.items(), key=lambda x: x[1][0])
+            best_collector_jid, (best_rating, best_path, routes) = min(self.agent.collector_proposals.items(), key=lambda x: x[1][0])
+            print(best_rating)
             self.agent.collector_proposals = {}
             print(f"Center: Accepting proposal of {jid_to_name(best_collector_jid)}")
             await self.request_collector(best_collector_jid, best_path, routes)
@@ -64,5 +65,5 @@ class ProposeCollectors_Behav(PeriodicBehaviour):
         msg = Message(to=collector_jid)
         # the body of the message contains only the path of the trash collector
         msg.body = json.dumps(data)
-        msg.set_metadata("performative", "request") # set the message metadata
+        msg.set_metadata("performative", "accept-proposal") # set the message metadata
         await self.send(msg) # send msg to trash collector

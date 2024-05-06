@@ -13,6 +13,7 @@ class TrashCollector(agent.Agent):
         
         self.collector_capacity = 500 # max collector capacity
         self.current_occupancy = 0 # current occupancy of the collector (max is collector_capacity)
+        self.gas_per_100km = 10 # gas spent per 100km
         
         if self.get("position"):
             self.position = self.get("position")
@@ -61,6 +62,11 @@ class TrashCollector(agent.Agent):
         thread.start()
 
     def get_best_path_rating(self, locations_map, trash_occupancies_dict):
+        total_occupancy = sum(list(trash_occupancies_dict.values()))
         best_path, cost, routes = locations_map.find_best_path(trash_occupancies_dict, self.collector_capacity)
-        rating = 0
+        rating = self.calculate_rating(total_occupancy)
         return best_path, cost, routes, rating
+
+    # returns the rating of this trash collector given the total trash occupancy
+    def calculate_rating(self, total_occupancy):
+        return self.gas_per_100km + abs(total_occupancy - self.collector_capacity)
