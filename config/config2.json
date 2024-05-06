@@ -14,9 +14,9 @@
         [41.552666040049104, -8.38957982177933],
         [41.56560964241645, -8.387980142732735]
     ],
-    "truck_velocity": 100,
-    "simulation_speed": 50,
-    "trash_occupancy_per_hour": 200,
+    "truck_velocity": 50,
+    "simulation_speed": 30,
+    "trash_occupancy_per_hour": 1,
     "images_directory": "images/"
 
 }

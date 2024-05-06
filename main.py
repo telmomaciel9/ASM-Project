@@ -83,14 +83,14 @@ if __name__ == '__main__':
     future = center_agent.start(auto_register=True) # Execute collection center agent
     future.result() # wait for the agent to start
 
-    # execute trash collector agents
-    for collector_agent in collector_agents:
-        future = collector_agent.start(auto_register=True) # start trash collector agent
-        future.result() # wait for the agent to start
-
     # execute trash agents
     for i, trash_agent in enumerate(trash_agents):
         future = trash_agent.start(auto_register=True) # start the trash agent
+        future.result() # wait for the agent to start
+
+    # execute trash collector agents
+    for collector_agent in collector_agents:
+        future = collector_agent.start(auto_register=True) # start trash collector agent
         future.result() # wait for the agent to start
 
 

@@ -3,6 +3,8 @@ from spade import agent
 from Behaviours.Trash.informCapacity_Behav import InformCapacity_Behav
 from Behaviours.Trash.disposeTrash_Behav import DisposeTrash_Behav
 
+import random
+
 class Trash(agent.Agent):
 
     trash_capacity = 100
@@ -12,7 +14,9 @@ class Trash(agent.Agent):
         print("Trash Agent '{}'".format(str(self.jid)) + " starting...")
 
         self.trash_capacity = 100 # max trash capacity
-        self.current_occupancy = 0 # current occupancy of the trash (max is trash_capacity)
+
+        # Set current_occupancy to a random value that is higher than half of the total capacity
+        self.current_occupancy = random.randint(self.trash_capacity/2, self.trash_capacity)
         
         if self.get("position"):
             self.position = self.get("position")
