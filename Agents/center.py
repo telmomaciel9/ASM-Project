@@ -13,6 +13,7 @@ class CollectionCenter(agent.Agent):
     available_collectors = {}
     jid_to_collector = {}
     collector_proposals = {} # dictionary that stores the path proposals of the trash collectors
+    collector_to_path = {} # maps the jid of collectors to the path they are currently collecting trash
 
     async def setup(self):
         print("Collection Center Agent {}".format(str(self.jid)) + " starting...")
@@ -53,8 +54,18 @@ class CollectionCenter(agent.Agent):
             self.available_collectors[collector_jid] = True
             self.jid_to_collector[collector_jid] = collector
 
-    def set_collector_availability(self, collector_jid, availability):
+    def set_collector_availability(self, collector_jid, availability, path=None):
         self.available_collectors[collector_jid] = availability
+        if availability:
+            self.collector_to_path.pop(collector_jid)
+        elif not availability and path:
+            # collector is sent on this path
+            self.collector_to_path[collector_jid] = path
+
+    def get_excluded_paths(self):
+        # return the paths that colletors are currently going through
+        concatenated_set = sum(self.collector_to_path.values(), [])
+        return concatenated_set
 
     def get_number_of_available_collectors(self):
         num_available_collectors = 0

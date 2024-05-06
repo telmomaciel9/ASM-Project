@@ -88,7 +88,8 @@ class ReceivePath_Behav(CyclicBehaviour):
         # proposal request
         # convert the dictionary's keys to integer, because json.dumps convert int keys to string
         trash_occupancies_dict = {int(k): v for k, v in data["trash_occupancies_dict"].items()}
-        best_path, _, routes, rating = self.agent.get_best_path_rating(trash_occupancies_dict)
+        excluded_locations_set = data["excluded_locations"]
+        best_path, _, routes, rating = self.agent.get_best_path_rating(trash_occupancies_dict, excluded_locations_set)
         # send proposal to the center agent
         # the proposal contains the best path for this collector, along with the path's rating
         msg = Message(to=self.get('center_jid'))

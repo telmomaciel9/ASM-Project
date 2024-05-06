@@ -49,9 +49,11 @@ class GraphMap:
                     self.distance_matrix[i][j] = self.distance_matrix[j][i] = route_length
 
 
-    def find_best_path(self, trash_occupancies_dict, collector_capacity):
+    def find_best_path(self, trash_occupancies_dict, collector_capacity, excluded_locations_jids):
+        # convert excluded_locations in jids to indexes
+        excluded_locations = [self.jid_to_index[jid] for jid in excluded_locations_jids]
         #best_path = greedy_path(self.n_locations-1, self.distance_matrix)
-        best_path = greedy_path_with_capacity(self.n_locations-1, self.distance_matrix, trash_occupancies_dict, collector_capacity)
+        best_path = greedy_path_with_capacity(self.n_locations-1, self.distance_matrix, trash_occupancies_dict, collector_capacity, excluded_indexes=excluded_locations)
         # best_path[0] == best_path[-1] -> the start and end location is the same (trash center)
 
         # now we need to change best_path, because it contains the indexes of the agents in the path, instead of their jid's

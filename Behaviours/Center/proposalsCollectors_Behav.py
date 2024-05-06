@@ -22,8 +22,10 @@ class ProposeCollectors_Behav(PeriodicBehaviour):
                 msg = Message(to=collector_jid)
                 # issue a call for proposals. Center requests proposals from the collectors, to get the best proposal
                 msg.set_metadata("performative", "cfp")
+                excluded_locations = self.agent.get_excluded_paths()
                 data = {
                     "trash_occupancies_dict": self.agent.trash_occupancies,
+                    "excluded_locations": excluded_locations,
                 }
                 msg.body = json.dumps(data)
                 await self.send(msg)
@@ -54,7 +56,7 @@ class ProposeCollectors_Behav(PeriodicBehaviour):
     """
     async def request_collector(self, collector_jid, path, routes):
         # set the trash collector availability to False, because it is going to be used for the next collection
-        self.agent.set_collector_availability(collector_jid,False)
+        self.agent.set_collector_availability(collector_jid, False, path)
         # get the best path from the central to the trashes and back
         data = {
             "path": path,
