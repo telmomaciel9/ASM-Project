@@ -61,11 +61,16 @@ class TrashCollector(agent.Agent):
         thread.daemon = True  # Set as a daemon so it will automatically close when the main program exits
         thread.start()
 
-    def get_best_path_rating(self, locations_map, trash_occupancies_dict):
+    def get_best_path_rating(self, trash_occupancies_dict):
         total_occupancy = sum(list(trash_occupancies_dict.values()))
-        best_path, cost, routes = locations_map.find_best_path(trash_occupancies_dict, self.collector_capacity)
+        best_path, cost, routes = self.locations_map.find_best_path(trash_occupancies_dict, self.collector_capacity)
         rating = self.calculate_rating(total_occupancy)
         return best_path, cost, routes, rating
+
+    def get_route_to_central(self, current_jid=None):
+        if not current_jid:
+            return []
+        return self.locations_map.get_route(current_jid)
 
     # returns the rating of this trash collector given the total trash occupancy
     def calculate_rating(self, total_occupancy):

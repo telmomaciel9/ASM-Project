@@ -55,12 +55,12 @@ def _calculate_priority_2(distance, occupancy, remaining_capacity):
         return -float('inf')
     else:
         # Prioritize by occupancy, discourage by distance
-        return occupancy - distance * 0.1  # The 0.1 factor is arbitrary and may need adjustment
+        return occupancy - distance * 100  # The 100 factor is arbitrary and may need adjustment
 
-def greedy_path_with_capacity(start_location, distance_matrix, trash_occupancy_dict, max_capacity):
+def greedy_path_with_capacity(start_location, distance_matrix, trash_occupancy_dict, max_capacity, excluded_indexes=[]):
     n_locations = len(distance_matrix)
     path = [start_location]
-    visited = {start_location}
+    visited = {start_location}.union(set(excluded_indexes))
     current_capacity = 0
     priority_queue = []
 

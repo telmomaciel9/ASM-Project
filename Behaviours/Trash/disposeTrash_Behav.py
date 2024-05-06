@@ -15,11 +15,11 @@ class DisposeTrash_Behav(CyclicBehaviour):
         msg = await self.receive(timeout=10) # wait for a message for 10 seconds
 
         if msg:
+            collector_jid = str(msg.sender)
             # Message Threatment based on different ACLMessage performatives
             performative = msg.get_metadata("performative")
             if performative == 'collector_inform': # Handle trash collector inform
                 data = json.loads(msg.body)
-                collector_jid = data["collector_jid"]
                 max_additional_capacity = data["max_additional_capacity"]
                 trash_to_dispose = min(max_additional_capacity, self.agent.current_occupancy)
                 print(f"{self.agent.name}: Disposing {trash_to_dispose:.2f}kg to {jid_to_name(collector_jid)}")

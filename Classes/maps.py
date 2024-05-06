@@ -19,13 +19,16 @@ class GraphMap:
         # set up a dictionary that maps agent index to their respective jid (string)
         self.index_to_agent = {}
         self.index_to_position = {}
+        self.jid_to_index = {}
         
         for i, agent in enumerate(trash_agents):
             self.index_to_agent[i] = str(agent.jid)
+            self.jid_to_index[str(agent.jid)] = i
             self.index_to_position[i] = agent.get('position')
 
         # the central agent is the last index
         self.index_to_agent[self.n_locations-1] = str(central_agent.jid)
+        self.jid_to_index[str(central_agent.jid)] = self.n_locations-1
         self.index_to_position[self.n_locations-1] = central_agent.get('position')
 
         self.fill_matrices()
@@ -65,3 +68,11 @@ class GraphMap:
             cost_array.append(cost)
             route_array.append(route)
         return jids_path, cost_array, route_array
+
+    def get_route(self, start_jid, end_jid=None):
+        start_index = self.jid_to_index[start_jid]
+        if not end_jid:
+            end_index = self.n_locations-1 # set end index to the collection center
+        else:
+            end_index = self.jid_to_index[end_jid]
+        return self.routes_matrix[start_index][end_index]

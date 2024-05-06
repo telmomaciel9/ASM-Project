@@ -1,6 +1,6 @@
 from spade import agent
 
-from Behaviours.Center.receiveInforms_Behav import ReceiveInforms_Behav
+from Behaviours.Center.receiveMessages_Behav import ReceiveMessages_Behav
 from Behaviours.Center.proposalsCollectors_Behav import ProposeCollectors_Behav
 
 """
@@ -22,7 +22,7 @@ class CollectionCenter(agent.Agent):
         else:
             print("Collection Center: position not defined!")
 
-        a = ReceiveInforms_Behav()
+        a = ReceiveMessages_Behav()
         b = ProposeCollectors_Behav(period = 5) # run every 5 seconds
 
         self.add_behaviour(a)

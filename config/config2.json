@@ -16,7 +16,7 @@
     ],
     "truck_velocity": 100,
     "simulation_speed": 50,
-    "trash_occupancy_per_hour": 5,
+    "trash_occupancy_per_hour": 200,
     "images_directory": "images/"
 
 }
