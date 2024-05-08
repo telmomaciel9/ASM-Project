@@ -9,12 +9,16 @@ In the simulation, there is only one collection center.
 """
 class CollectionCenter(agent.Agent):
 
+    # dict that maps trash names to their trash occupancy in kg
     trash_occupancies = {}
-    # maps collectors jids to booleans
+    # maps collectors jids to booleans that represent the collectors availability. If False, collector is currently collecting trash
     available_collectors = {}
+    # maps collector jids to the trash collector object
     jid_to_collector = {}
-    collector_proposals = {} # dictionary that stores the path proposals of the trash collectors
-    collector_to_path = {} # maps the jid of collectors to the path they are currently collecting trash
+     # dictionary that stores the path proposals of the trash collectors
+    collector_proposals = {}
+    # maps the jid of collectors to the path they are currently collecting trash
+    collector_to_path = {} 
 
     async def setup(self):
         print("Collection Center Agent {}".format(str(self.jid)) + " starting...")
@@ -85,14 +89,14 @@ class CollectionCenter(agent.Agent):
             if not available:
                 # we only count if the availability of the collector is False. This way the collector is on the road
                 collector = self.jid_to_collector[collector_jid]
-                collector_capacity = collector.collector_capacity
+                collector_capacity = collector.collector_capacity - collector.current_occupancy
                 total_capacity += collector_capacity
         return total_capacity
 
 
-    def get_best_path(self, trash_occupancies_dict, collector_capacity):
-        # best_path is an array which contains the jid's of the agents in the path
-        # cost_array is an array which contains the cost of each transition in the path
-        best_path, cost_array, routes_array = self.locations_map.find_best_path(trash_occupancies_dict, collector_capacity)
-        return best_path, cost_array, routes_array
+    # def get_best_path(self, collector_capacity):
+    #     # best_path is an array which contains the jid's of the agents in the path
+    #     # cost_array is an array which contains the cost of each transition in the path
+    #     best_path, cost_array, routes_array = self.locations_map.find_best_path(self.trash_occupancies, collector_capacity)
+    #     return best_path, cost_array, routes_array
 

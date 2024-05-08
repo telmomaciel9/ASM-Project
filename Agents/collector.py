@@ -48,13 +48,14 @@ class TrashCollector(agent.Agent):
     def go_to_position(self, route):
         def update_positions():
             start_position = self.position
-            for route_pos in route:
-                end_position = Position(*route_pos)
-                interpolated_positions = interpolate_points(start_position, end_position, self.jump_size)
-                for pos in interpolated_positions:
-                    self.update_position(pos) # update position of the trash collector
-                    time.sleep(self.update_interval)
-                start_position = end_position
+            if route:
+                for route_pos in route:
+                    end_position = Position(*route_pos)
+                    interpolated_positions = interpolate_points(start_position, end_position, self.jump_size)
+                    for pos in interpolated_positions:
+                        self.update_position(pos) # update position of the trash collector
+                        time.sleep(self.update_interval)
+                    start_position = end_position
 
         # execute position updates in a new thread, so as to not block the execution
         thread = threading.Thread(target=update_positions)

@@ -11,7 +11,6 @@ total_occupancy_threshold = 100
 
 class ProposeCollectors_Behav(PeriodicBehaviour):
     async def run(self):
-        self.collector_proposals = {}
 
         # If the trash occupancy of all trashes combined subtracted by the total capacity of collectors on the road excedes the threshold, we send a collector
         if (sum(list(self.agent.trash_occupancies.values())) - self.agent.get_collector_capacity_on_the_road()) > total_occupancy_threshold and self.agent.get_number_of_available_collectors() >= 0:
