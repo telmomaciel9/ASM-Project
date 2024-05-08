@@ -12,7 +12,7 @@ import time
 import asyncio  # Import asyncio for asyncio.sleep
 import json
 
-class ReceivePath_Behav(CyclicBehaviour):
+class ReceiveMessages_Behav(CyclicBehaviour):
 
     async def run(self):
         msg = await self.receive(timeout=10) # wait for a message for 10 seconds

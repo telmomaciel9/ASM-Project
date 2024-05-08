@@ -1,5 +1,5 @@
 from spade import agent
-from Behaviours.Collector.receivePath_Behav import ReceivePath_Behav
+from Behaviours.Collector.receiveMessages_Behav import ReceiveMessages_Behav
 import threading
 from Classes.Position import interpolate_points, Position
 import time
@@ -31,11 +31,9 @@ class TrashCollector(agent.Agent):
 
         self.lock = threading.Lock()  # A lock to synchronize access to the position
 
-        a = ReceivePath_Behav()
-        #b = DisposeTrash_Behav()
+        a = ReceiveMessages_Behav()
 
         self.add_behaviour(a)
-        #self.add_behaviour(b)
 
     def update_position(self, new_pos):
         with self.lock:

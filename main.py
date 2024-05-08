@@ -20,7 +20,7 @@ simulation_update_interval = 0.02
 
 if __name__ == '__main__':
 
-    config_path = 'config/config2.json'  # The path to your configuration file
+    config_path = 'config/config1.json'  # The path to your configuration file
     config = Config(config_path)
 
     # this variable represents the number of trash collectors in the simulation
