@@ -1,3 +1,7 @@
 Agents/__pycache__
-Behaviours/__pycache__
-Shared/__pycache__
+Behaviours/Center/__pycache__
+Behaviours/Collector/__pycache__
+Behaviours/Trash/__pycache__
+Classes/__pycache__
+__pycache__
+cache
