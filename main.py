@@ -1,9 +1,8 @@
 from spade import quit_spade
 import time 
+import sys
 from Classes.maps import GraphMap
-import asyncio
 from util import update_interval
-import json
 
 from Agents.center import CollectionCenter
 from Agents.collector import TrashCollector
@@ -13,14 +12,18 @@ from Classes.simulation import Simulator
 
 from config import Config
 
-XMPP_SERVER = 'ubuntu.myguest.virtualbox.org' # XMPP_SERVER
+# XMPP_SERVER = 'ubuntu.myguest.virtualbox.org' # XMPP_SERVER
+XMPP_SERVER = '183sawyer'
 PASSWORD = 'NOPASSWORD' # password
 
 simulation_update_interval = 0.02
 
 if __name__ == '__main__':
-
-    config_path = 'config/config1.json'  # The path to your configuration file
+    if len(sys.argv) > 1:
+        config_path = sys.argv[1]
+    else:
+        config_path = 'config/config1.json'  # The path to your configuration file
+    
     config = Config(config_path)
 
     # this variable represents the number of trash collectors in the simulation
