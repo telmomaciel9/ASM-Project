@@ -1,15 +1,15 @@
 
 import numpy as np
 import random
-from util import greedy_path, find_route, greedy_path_with_capacity, find_optimal_path_tsp
 import osmnx as ox
+import networkx as nx
 import math
 from Classes.Position import euclidean_dist_vec
 
 class GraphMap:
-    def __init__(self, trash_agents, central_agent, G):
+    def __init__(self, trash_jids, trash_positions, center_jid, center_position, G):
         np.random.seed(0) # set the seed to 0 for uniform results
-        self.n_locations = len(trash_agents) + 1 # +1 because the central is also a location
+        self.n_locations = len(trash_jids) + 1 # +1 because the central is also a location
         self.G = G  # Graph from osmnx
 
         # Initialize the distance matrix with zeros
@@ -21,15 +21,15 @@ class GraphMap:
         self.index_to_position = {}
         self.jid_to_index = {}
         
-        for i, agent in enumerate(trash_agents):
-            self.index_to_agent[i] = str(agent.jid)
-            self.jid_to_index[str(agent.jid)] = i
-            self.index_to_position[i] = agent.get('position')
+        for i, (jid, position) in enumerate(zip(trash_jids, trash_positions)):
+            self.index_to_agent[i] = jid
+            self.jid_to_index[jid] = i
+            self.index_to_position[i] = position
 
         # the central agent is the last index
-        self.index_to_agent[self.n_locations-1] = str(central_agent.jid)
-        self.jid_to_index[str(central_agent.jid)] = self.n_locations-1
-        self.index_to_position[self.n_locations-1] = central_agent.get('position')
+        self.index_to_agent[self.n_locations-1] = center_jid
+        self.jid_to_index[center_jid] = self.n_locations-1
+        self.index_to_position[self.n_locations-1] = center_position
 
         self.fill_matrices()
 
@@ -38,7 +38,7 @@ class GraphMap:
             for j in range(i + 1, self.n_locations):
                 if i != j:
                     # Find route between positions i and j
-                    route_latlon = find_route(self.G, self.index_to_position[i], self.index_to_position[j])
+                    route_latlon = self.find_route(i, j)
                     self.routes_matrix[i][j] = route_latlon
                     self.routes_matrix[j][i] = list(reversed(route_latlon))
                     
@@ -52,8 +52,7 @@ class GraphMap:
     def find_best_path(self, trash_occupancies_dict, collector_capacity, excluded_locations_jids):
         # convert excluded_locations in jids to indexes
         excluded_locations = [self.jid_to_index[jid] for jid in excluded_locations_jids]
-        #best_path = greedy_path_with_capacity(self.n_locations-1, self.distance_matrix, trash_occupancies_dict, collector_capacity, excluded_indexes=excluded_locations)
-        best_path = find_optimal_path_tsp(self.distance_matrix, trash_occupancies_dict, collector_capacity, excluded_nodes=excluded_locations)
+        best_path = self.find_optimal_path_tsp(trash_occupancies_dict, collector_capacity, excluded_nodes=excluded_locations)
         # best_path[0] == best_path[-1] -> the start and end location is the same (trash center)
 
         # now we need to change best_path, because it contains the indexes of the agents in the path, instead of their jid's
@@ -78,3 +77,76 @@ class GraphMap:
         else:
             end_index = self.jid_to_index[end_jid]
         return self.routes_matrix[start_index][end_index]
+
+    def find_route(self, i, j):
+        orig_point = self.index_to_position[i]
+        dest_point = self.index_to_position[j]
+        # Use the new method to find the nearest nodes
+        orig_node = ox.distance.nearest_nodes(self.G, orig_point[1], orig_point[0])
+        dest_node = ox.distance.nearest_nodes(self.G, dest_point[1], dest_point[0])
+        route_nodes = nx.shortest_path(self.G, orig_node, dest_node, weight='length')
+
+        # Convert node IDs to (latitude, longitude) pairs
+        route_latlon = [(self.G.nodes[node]['y'], self.G.nodes[node]['x']) for node in route_nodes]
+        return route_latlon
+
+    """
+    finds the optimal path using a TSP (Travelling Salesman Problem) solver
+    trash_occupancies maps trash jids to their occupancies
+    """
+    def find_optimal_path_tsp(self, trash_occupancies, max_capacity, excluded_nodes=[]):
+        distance_matrix = self.distance_matrix
+        # Create a complete graph from the distance matrix
+        G = nx.Graph()  # Changed to a simple Graph instead of complete graph initialization
+        num_nodes = len(distance_matrix)
+        start_node = num_nodes-1
+
+        excluded_nodes = set(excluded_nodes)
+        excluded_nodes.discard(start_node) # we remove the start node from excluded nodes, because the path has to go through this node
+
+        # Add nodes and edges with appropriate weights, excluding specified nodes
+        for i in range(num_nodes):
+            if i in excluded_nodes:
+                continue
+            for j in range(i + 1, num_nodes):
+                if j in excluded_nodes:
+                    continue
+                G.add_edge(i, j, weight=distance_matrix[i][j])
+
+        # Solve TSP using an approximation method, considering only included nodes
+        if len(G.nodes) > 0:
+            cycle = nx.approximation.traveling_salesman_problem(
+                G, cycle=True, weight='weight')
+            # Reorder the cycle to start and end at the start_location
+            start_index = cycle.index(start_node)
+            ordered_cycle =  cycle[start_index:] + cycle[:start_index] + [start_node]
+        else:
+            ordered_cycle = []
+
+        # Refine the cycle to respect capacity constraints
+        path, current_load = [], 0
+        if len(ordered_cycle) > 0:
+            start_location = ordered_cycle[0]
+            path.append(start_location)
+
+            for node in ordered_cycle[1:]:
+                if node == start_node: # if node is the start location, we set the cost to 0
+                    occupancy = 0
+                else:
+                    trash_jid = self.index_to_agent[node]
+                    occupancy = trash_occupancies[trash_jid]
+                if current_load + occupancy <= max_capacity:
+                    path.append(node)
+                    current_load += occupancy
+                else:
+                    # Go to node and then go to start location
+                    path.append(node)
+                    path.append(start_location)
+                    current_load = occupancy
+                    break
+
+            # Ensure returning to the start location if not already there
+            if path[-1] != start_location:
+                path.append(start_location)
+
+        return path

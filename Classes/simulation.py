@@ -40,8 +40,12 @@ def _latlon_to_pixels(lat, lon, bbox, image_size):
     return (int(x_pixels), int(y_pixels))
 
 class Simulator:
-    def __init__(self, map_image_path, truck_image_path, trash_image_path, n_collectors, n_trashes, center_location, trash_positions):
+    def __init__(self, images_directory, n_collectors, n_trashes, center_location, trash_positions):
         assert n_trashes == len(trash_positions)
+
+        map_image_path = f'{images_directory}/map_image.png'
+        truck_image_path = f'{images_directory}/truck_icon.png'
+        trash_image_path = f'{images_directory}/trash_icon.png'
 
         # Calculate the maximum distance to any trash position
         center_distance = self.calculate_center_distance(trash_positions, center_location) + 100  # Add buffer distance

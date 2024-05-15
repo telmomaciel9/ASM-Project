@@ -1,12 +1,4 @@
 
-# interval that defines the update frequency of the visual simulation, and the update of the positions of the trucks
-# the smaller the interval, the faster the trucks move
-update_interval = 0.02
-
-# value that defines how fine grain the position updates are
-# the smaller the value, the higher amount of position updates the trash collectors go through
-jump_size = 0.0001
-
 import osmnx as ox
 import networkx as nx
 import heapq
@@ -36,17 +28,6 @@ def greedy_path(start_location, distance_matrix):
         path.append(next_location)
         visited.add(next_location)
     return path + [start_location]
-
-# finds route between two tuples (latitude, longitude)
-def find_route(G, orig_point, dest_point):
-    # Use the new method to find the nearest nodes
-    orig_node = ox.distance.nearest_nodes(G, orig_point[1], orig_point[0])
-    dest_node = ox.distance.nearest_nodes(G, dest_point[1], dest_point[0])
-    route_nodes = nx.shortest_path(G, orig_node, dest_node, weight='length')
-    
-    # Convert node IDs to (latitude, longitude) pairs
-    route_latlon = [(G.nodes[node]['y'], G.nodes[node]['x']) for node in route_nodes]
-    return route_latlon
 
 
 def _calculate_priority_2(distance, occupancy, remaining_capacity):
@@ -97,61 +78,5 @@ def greedy_path_with_capacity(start_location, distance_matrix, trash_occupancy_d
 
     if path[-1] != start_location:
         path.append(start_location)  # Ensure the path ends at the start location
-
-    return path
-
-# solve using a TSP solver (Travelling Salesman Problem)
-def find_optimal_path_tsp(distance_matrix, trash_occupancies, max_capacity, excluded_nodes=[]):
-    # Create a complete graph from the distance matrix
-    G = nx.Graph()  # Changed to a simple Graph instead of complete graph initialization
-    num_nodes = len(distance_matrix)
-    start_node = num_nodes-1
-
-    excluded_nodes = set(excluded_nodes)
-    excluded_nodes.discard(start_node) # we remove the start node from excluded nodes, because the path has to go through this node
-
-    # Add nodes and edges with appropriate weights, excluding specified nodes
-    for i in range(num_nodes):
-        if i in excluded_nodes:
-            continue
-        for j in range(i + 1, num_nodes):
-            if j in excluded_nodes:
-                continue
-            G.add_edge(i, j, weight=distance_matrix[i][j])
-
-    # Solve TSP using an approximation method, considering only included nodes
-    if len(G.nodes) > 0:
-        cycle = nx.approximation.traveling_salesman_problem(
-            G, cycle=True, weight='weight')
-        # Reorder the cycle to start and end at the start_location
-        start_index = cycle.index(start_node)
-        ordered_cycle =  cycle[start_index:] + cycle[:start_index] + [start_node]
-    else:
-        ordered_cycle = []
-
-    # Refine the cycle to respect capacity constraints
-    path, current_load = [], 0
-    if len(ordered_cycle) > 0:
-        start_location = ordered_cycle[0]
-        path.append(start_location)
-
-        for node in ordered_cycle[1:]:
-            if node == start_node: # if node is the start location, we set the cost to 0
-                occupancy = 0
-            else:
-                occupancy = trash_occupancies[node]
-            if current_load + occupancy <= max_capacity:
-                path.append(node)
-                current_load += occupancy
-            else:
-                # Go to node and then go to start location
-                path.append(node)
-                path.append(start_location)
-                current_load = occupancy
-                break
-
-        # Ensure returning to the start location if not already there
-        if path[-1] != start_location:
-            path.append(start_location)
 
     return path

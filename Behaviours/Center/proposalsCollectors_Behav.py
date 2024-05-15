@@ -14,6 +14,10 @@ class ProposeCollectors_Behav(PeriodicBehaviour):
 
         total_occupancy_threshold = self.get('threshold') # get the threshold variable and set the occupancy threshold
 
+        print("total_occupancy_threshold -",total_occupancy_threshold)
+        print("sum(list(self.agent.trash_occupancies.values())) -",sum(list(self.agent.trash_occupancies.values())))
+        print("value -",sum(list(self.agent.trash_occupancies.values())) - self.agent.get_collector_capacity_on_the_road())
+        print("avail coll -", self.agent.get_number_of_available_collectors())
         # If the trash occupancy of all trashes combined subtracted by the total capacity of collectors on the road excedes the threshold, we send a collector
         if (sum(list(self.agent.trash_occupancies.values())) - self.agent.get_collector_capacity_on_the_road()) > total_occupancy_threshold and self.agent.get_number_of_available_collectors() >= 0:
             # get the jids of the available collectors

@@ -40,10 +40,6 @@ if __name__ == '__main__':
     update_interval = config.get_update_interval  # Update your time.sleep calls with this variable
     images_directory = config.images_directory
 
-    map_image_file = f'{images_directory}/map_image.png'
-    truck_image_file = f'{images_directory}/truck_icon.png'
-    trash_image_file = f'{images_directory}/trash_icon.png'
-
     # creates the jids for the trash agents
     trash_jids = [f'trash{i}@'+XMPP_SERVER for i in range(n_trashes)]
     # creates the jids for the trash collector agents
@@ -79,9 +75,9 @@ if __name__ == '__main__':
     center_agent.set('threshold', min([collector_agent.collector_capacity for collector_agent in collector_agents]))
 
     # create entity that will visually simulate the interactions between the agents
-    simulator = Simulator(map_image_file, truck_image_file, trash_image_file, n_collectors, n_trashes, center_position, trash_positions)
+    simulator = Simulator(images_directory, n_collectors, n_trashes, center_position, trash_positions)
     # create the data structure that holds the information about the environment and the routes
-    map1 = GraphMap(trash_agents, center_agent, simulator.G)
+    map1 = GraphMap(trash_jids, trash_positions, center_jid, center_position, simulator.G)
 
     for agent in collector_agents + [center_agent]:
         agent.set_map(map1) # set the map of trash agents and central

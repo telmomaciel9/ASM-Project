@@ -19,26 +19,24 @@ class ReceiveMessages_Behav(CyclicBehaviour):
         msg = await self.receive(timeout=10) # wait for a message for 10 seconds
 
         if msg:
-            collector_jid = str(msg.sender)
+            sender_jid = str(msg.sender)
             # Message Threatment based on different ACLMessage performatives
             performative = msg.get_metadata("performative")
             data = json.loads(msg.body)  # deserialize JSON back to a Python dictionary
             if performative == 'inform': # Handle trash occupancy inform
-                await self.handle_inform_trash_occupancy(data)
+                await self.handle_inform_trash_occupancy(data, sender_jid)
             elif performative == 'collector_inform':
-                await self.handle_collector_inform(collector_jid)
+                await self.handle_collector_inform(sender_jid)
             elif performative == 'propose':
-                await self.handle_propose(data, collector_jid)
+                await self.handle_propose(data, sender_jid)
             else:
                 print("Agent {}:".format(str(self.agent.name)) + " Message not understood!")
         else:
             print("Agent {}:".format(str(self.agent.name)) + "Did not received any message after 10 seconds")
 
-    async def handle_inform_trash_occupancy(self, data):
-        #trash_name = data["name"]
-        trash_id = data["name"]
+    async def handle_inform_trash_occupancy(self, data, trash_jid):
         occupancy = data["current_occupancy"]
-        self.agent.trash_occupancies[trash_id] = occupancy
+        self.agent.trash_occupancies[trash_jid] = occupancy
 
     async def handle_collector_inform(self, collector_jid):
         print(f"Center: {jid_to_name(collector_jid)} has returned to the Collection Center!")
