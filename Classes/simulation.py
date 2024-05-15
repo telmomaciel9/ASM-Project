@@ -36,7 +36,9 @@ def _latlon_to_pixels(lat, lon, bbox, image_size):
     return (int(x_pixels), int(y_pixels))
 
 class Simulator:
-    def __init__(self, map_image_path, truck_image_path, trash_image_path, n_collectors, n_trashes, center_location, center_distance=1000):
+    def __init__(self, map_image_path, truck_image_path, trash_image_path, n_collectors, n_trashes, center_location, trash_positions, center_distance=1000):
+        assert n_trashes == len(trash_positions)
+
         self.image_size = (800, 800)
         self.G = _download_map_area(center_location, center_distance)  # center_distance are the meters around the center visible in the map
         self.bbox = _save_map_as_image(self.G, map_image_path, center_location)
@@ -84,14 +86,16 @@ class Simulator:
             
         # Load the trash icon image
         self.trash_icons = []
-        self.trashes = []
         self.trash_texts = []
+        
         # global truck_icon
-        for i in range(n_trashes):
+        for i, position in enumerate(trash_positions):
             trash_icon = ImageTk.PhotoImage(image_trash)
             self.trash_icons.append(trash_icon)
             trash = self.canvas.create_image(center_location.tuple(), image=trash_icon)
-            self.trashes.append(trash)
+            # set trash icon positions in canvas
+            position_pixels = _latlon_to_pixels(position[0], position[1], self.bbox, self.image_size)
+            self.canvas.coords(trash, position_pixels)
             
             # Create a text item for each trash to display occupancy
             trash_text = self.canvas.create_text(center_location.tuple(), text="0 kg", anchor="s", fill='white')
@@ -105,7 +109,6 @@ class Simulator:
             self.canvas.coords(self.truck_texts[i], position_pixels[0], position_pixels[1] - 10)
         for i, position in enumerate(trash_positions):
             position_pixels = _latlon_to_pixels(position[0], position[1], self.bbox, self.image_size)
-            self.canvas.coords(self.trashes[i], *position_pixels)
             self.canvas.itemconfig(self.trash_texts[i], text=f"{trash_occupancies[i]:.2f} kg")
             self.canvas.coords(self.trash_texts[i], position_pixels[0], position_pixels[1] - 10)
         self.root.update_idletasks()

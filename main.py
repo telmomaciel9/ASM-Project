@@ -12,8 +12,8 @@ from Classes.simulation import Simulator
 
 from config import Config
 
-# XMPP_SERVER = 'ubuntu.myguest.virtualbox.org' # XMPP_SERVER
-XMPP_SERVER = '183sawyer'
+XMPP_SERVER = 'ubuntu.myguest.virtualbox.org' # XMPP_SERVER
+#XMPP_SERVER = '183sawyer'
 PASSWORD = 'NOPASSWORD' # password
 
 simulation_update_interval = 0.02
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     center_agent.set('position', center_position) # set the map of trash agents and central
 
     # create entity that will visually simulate the interactions between the agents
-    simulator = Simulator(map_image_file, truck_image_file, trash_image_file, n_collectors, n_trashes, center_position)
+    simulator = Simulator(map_image_file, truck_image_file, trash_image_file, n_collectors, n_trashes, center_position, trash_positions)
     # create the data structure that holds the information about the environment and the routes
     map1 = GraphMap(trash_agents, center_agent, simulator.G)
 
