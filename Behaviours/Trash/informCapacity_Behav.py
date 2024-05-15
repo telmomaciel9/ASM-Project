@@ -21,7 +21,6 @@ class InformCapacity_Behav (PeriodicBehaviour):
         # inform capacity to the central
         msg = Message(to=self.get('center_jid'))
         data = {
-            "name": self.get('id'),
             "current_occupancy": current_occupancy,
         }
         msg.body = json.dumps(data)

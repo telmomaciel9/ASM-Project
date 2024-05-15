@@ -2,7 +2,6 @@ from spade import quit_spade
 import time 
 import sys
 from Classes.maps import GraphMap
-from util import update_interval
 
 from Agents.center import CollectionCenter
 from Agents.collector import TrashCollector
@@ -56,7 +55,6 @@ if __name__ == '__main__':
     for i, jid in enumerate(trash_jids):
         trash_agent = Trash(jid, PASSWORD)
         trash_agent.set('center_jid', center_jid)
-        trash_agent.set('id', str(i))
         trash_agent.set('position', trash_positions[i]) # set the position of the trash
         trash_agents.append(trash_agent)
     # create Trash Collector agents
