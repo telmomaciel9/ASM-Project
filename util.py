@@ -131,26 +131,27 @@ def find_optimal_path_tsp(distance_matrix, trash_occupancies, max_capacity, excl
 
     # Refine the cycle to respect capacity constraints
     path, current_load = [], 0
-    start_location = ordered_cycle[0]
-    path.append(start_location)
-
-    for node in ordered_cycle[1:]:
-        if node == start_node: # if node is the start location, we set the cost to 0
-            occupancy = 0
-        else:
-            occupancy = trash_occupancies[node]
-        if current_load + occupancy <= max_capacity:
-            path.append(node)
-            current_load += occupancy
-        else:
-            # Go to node and then go to start location
-            path.append(node)
-            path.append(start_location)
-            current_load = occupancy
-            break
-
-    # Ensure returning to the start location if not already there
-    if path[-1] != start_location:
+    if len(ordered_cycle) > 0:
+        start_location = ordered_cycle[0]
         path.append(start_location)
+
+        for node in ordered_cycle[1:]:
+            if node == start_node: # if node is the start location, we set the cost to 0
+                occupancy = 0
+            else:
+                occupancy = trash_occupancies[node]
+            if current_load + occupancy <= max_capacity:
+                path.append(node)
+                current_load += occupancy
+            else:
+                # Go to node and then go to start location
+                path.append(node)
+                path.append(start_location)
+                current_load = occupancy
+                break
+
+        # Ensure returning to the start location if not already there
+        if path[-1] != start_location:
+            path.append(start_location)
 
     return path

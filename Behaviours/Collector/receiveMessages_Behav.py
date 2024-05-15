@@ -37,7 +37,7 @@ class ReceiveMessages_Behav(CyclicBehaviour):
     async def handle_accept_proposal(self, data):
         path = data["path"]
         routes = data["routes"]
-        if path[0] == str(self.get('center_jid')):
+        if len(path) > 0 and path[0] == str(self.get('center_jid')):
             # if the first location is the collection center, remove this from the path (because the trash collector starts there)
             path.pop(0)
         path_route = list(zip(path, routes))

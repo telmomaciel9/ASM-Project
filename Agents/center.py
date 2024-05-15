@@ -30,8 +30,8 @@ class CollectionCenter(agent.Agent):
 
         a = ReceiveMessages_Behav()
 
-        # start after 10 seconds
-        start_at = datetime.datetime.now() + datetime.timedelta(seconds=10)
+        # start after 20 seconds
+        start_at = datetime.datetime.now() + datetime.timedelta(seconds=20)
         b = ProposeCollectors_Behav(period = 3, start_at = start_at) # run every 3 seconds
 
         self.add_behaviour(a)
@@ -65,7 +65,7 @@ class CollectionCenter(agent.Agent):
     def set_collector_availability(self, collector_jid, availability, path=None):
         self.available_collectors[collector_jid] = availability
         if availability:
-            self.collector_to_path.pop(collector_jid)
+            self.collector_to_path.pop(collector_jid, None)
         elif not availability and path:
             # collector is sent on this path
             self.collector_to_path[collector_jid] = path
