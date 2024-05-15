@@ -119,7 +119,14 @@ class Simulator:
             self.canvas.coords(self.truck_texts[i], position_pixels[0], position_pixels[1] - 10)
         for i, position in enumerate(trash_positions):
             position_pixels = _latlon_to_pixels(position[0], position[1], self.bbox, self.image_size)
-            self.canvas.itemconfig(self.trash_texts[i], text=f"{trash_occupancies[i]:.2f} kg")
+            occupancy = trash_occupancies[i]
+            # set the color based on the occupancy
+            if occupancy <= 33:
+                color = 'green'
+            elif occupancy <= 66:
+                color = 'orange'
+            else:
+                color = 'red'
+            self.canvas.itemconfig(self.trash_texts[i], text=f"{occupancy:.2f} kg", fill=color)
             self.canvas.coords(self.trash_texts[i], position_pixels[0], position_pixels[1] - 10)
         self.root.update_idletasks()
-        #self.root.after(10)  # Delay between each frame; lower=faster animation
