@@ -28,6 +28,8 @@ if __name__ == '__main__':
 
     # this variable represents the number of trash collectors in the simulation
     n_collectors = config.n_collectors
+    # this variable represents the max capacities of the trash collector agents
+    collector_capacities = config.collector_capacities
     # this variable represents the number of trashes in the simulation
     n_trashes = config.n_trashes
     # get position objects of the agents
@@ -68,11 +70,13 @@ if __name__ == '__main__':
         collector_agent.set('center_jid', center_jid)
         collector_agent.set('position', center_position) # set the position of the agent to the center position (trash collectors start at the center)
         collector_agent.set('positions', jids_to_position_dict)
+        collector_agent.collector_capacity = collector_capacities[i]
         collector_agents.append(collector_agent)
 
     # associate the trash collector agents to the collection center agent
     center_agent.set_collectors(collector_agents)
     center_agent.set('position', center_position) # set the map of trash agents and central
+    center_agent.set('threshold', min([collector_agent.collector_capacity for collector_agent in collector_agents]))
 
     # create entity that will visually simulate the interactions between the agents
     simulator = Simulator(map_image_file, truck_image_file, trash_image_file, n_collectors, n_trashes, center_position, trash_positions)

@@ -4,6 +4,7 @@
         -8.398085
     ],
     "number_of_collectors": 4,
+    "collector_capacities": [500, 500, 750, 1000],
     "number_of_trashes": 20,
     "trash_positions": [
         [

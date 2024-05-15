@@ -11,7 +11,7 @@ class TrashCollector(agent.Agent):
     async def setup(self):
         print("Trash Collector Agent {}".format(str(self.jid)) + " starting...")
         
-        self.collector_capacity = 500 # max collector capacity
+        #self.collector_capacity = 500 # max collector capacity
         self.current_occupancy = 0 # current occupancy of the collector (max is collector_capacity)
         self.gas_per_100km = 10 # gas spent per 100km
         

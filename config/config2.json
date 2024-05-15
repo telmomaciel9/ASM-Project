@@ -1,6 +1,7 @@
 {
     "center_position": [41.558058, -8.398085],
     "number_of_collectors": 2,
+    "collector_capacities": [500, 750],
     "number_of_trashes": 10,
     "trash_positions": [
         [41.553745493456525, -8.406752279492304],

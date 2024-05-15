@@ -45,7 +45,6 @@ class Simulator:
 
         # Calculate the maximum distance to any trash position
         center_distance = self.calculate_center_distance(trash_positions, center_location) + 100  # Add buffer distance
-        print(center_distance)
         self.image_size = (800, 800)
         self.G = _download_map_area(center_location, center_distance)  # center_distance are the meters around the center visible in the map
         self.bbox, self.map_image = _save_map_as_image(self.G, map_image_path, center_position=center_location, dist=center_distance, image_size=self.image_size)

@@ -25,6 +25,7 @@ class Config:
                 self.simulation_speed = config['simulation_speed']
                 self.trash_occupancy_per_hour = config['trash_occupancy_per_hour']
                 self.images_directory = config['images_directory']
+                self.collector_capacities = config['collector_capacities']
                 self.calculate_simulation_parameters()
             except KeyError:
                 print("Error: Config didn't have all necessary values")

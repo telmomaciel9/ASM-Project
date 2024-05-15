@@ -12,6 +12,8 @@ total_occupancy_threshold = 100
 class ProposeCollectors_Behav(PeriodicBehaviour):
     async def run(self):
 
+        total_occupancy_threshold = self.get('threshold') # get the threshold variable and set the occupancy threshold
+
         # If the trash occupancy of all trashes combined subtracted by the total capacity of collectors on the road excedes the threshold, we send a collector
         if (sum(list(self.agent.trash_occupancies.values())) - self.agent.get_collector_capacity_on_the_road()) > total_occupancy_threshold and self.agent.get_number_of_available_collectors() >= 0:
             # get the jids of the available collectors
@@ -34,7 +36,7 @@ class ProposeCollectors_Behav(PeriodicBehaviour):
 
 
     """
-    This function goes over the collector_proposals dictionary, gets the collector with the highest rating, and requests the collector to go on
+    This function goes over the collector_proposals dictionary, gets the collector with the lowest rating, and requests the collector to go on
     the designated path
     """
     async def check_collector_paths(self, delay_seconds):
