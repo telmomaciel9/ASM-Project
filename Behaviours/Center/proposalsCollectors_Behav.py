@@ -41,24 +41,3 @@ class ProposeCollectors_Behav(PeriodicBehaviour):
                 }
                 msg.body = json.dumps(data)
                 await self.send(msg)
-
-            # Schedule a check function, to check for the best rating after one second
-            # asyncio.create_task(self.check_collector_paths(1))
-
-
-    """
-    This function goes over the collector_proposals dictionary, gets the collector with the lowest rating, and requests the collector to go on
-    the designated path
-    """
-    async def check_collector_paths(self, delay_seconds):
-        """Wait for a delay and then process the collected paths."""
-        await asyncio.sleep(delay_seconds)
-
-        if self.agent.collector_proposals:
-            # Find the collector with the best rating
-            best_collector_jid, (best_rating, best_path, routes) = min(self.agent.collector_proposals.items(), key=lambda x: x[1][0])
-            self.agent.collector_proposals = {}
-            print(f"Center: Accepting proposal of {jid_to_name(best_collector_jid)}")
-            await self.request_collector(best_collector_jid, best_path, routes)
-        else:
-            print("Center: No collectors have responded with a path.")
