@@ -92,12 +92,22 @@ class ReceiveMessages_Behav(CyclicBehaviour):
         best_path = data["best_path"]
         routes = data["routes"]
         rating = self.agent.calculate_rating(sum(list(trash_occupancies_dict.values())))
+
+        total_occupancy = 0
+        truncated_path = [best_path[0]]
+        for node in best_path[1:-1]:
+            truncated_path.append(node)
+            total_occupancy += trash_occupancies_dict[node]
+            if total_occupancy > self.agent.collector_capacity:
+                break
+        truncated_path.append(best_path[-1])
+
         # send proposal to the center agent
         # the proposal contains the best path and routes for this collector, along with the path's rating
         msg = Message(to=self.get('center_jid'))
         msg.set_metadata("performative", "propose") # set the message metadata
         data = {
-            "best_path": best_path,
+            "best_path": truncated_path,
             "routes": routes,
             "rating": rating,
         }

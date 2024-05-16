@@ -35,15 +35,18 @@ class ProposeCollectors_Behav(PeriodicBehaviour):
 
             excluded_locations = self.agent.get_excluded_paths()
             best_path, _, routes_array = self.agent.get_best_path(self.agent.elapsed_time_collection, excluded_locations)
-            for collector_jid in available_collectors_jids:
-                # for each collector, issue a call for proposals
-                msg = Message(to=collector_jid)
-                # issue a call for proposals. Center requests proposals from the collectors, to get the best proposal
-                msg.set_metadata("performative", "cfp")
-                data = {
-                    "trash_occupancies_dict": self.agent.trash_occupancies,
-                    "best_path": best_path,
-                    "routes": routes_array,
-                }
-                msg.body = json.dumps(data)
-                await self.send(msg)
+
+            # dont send cfp if the path doesnt have any nodes other than the start node
+            if len(best_path) > 2:
+                for collector_jid in available_collectors_jids:
+                    # for each collector, issue a call for proposals
+                    msg = Message(to=collector_jid)
+                    # issue a call for proposals. Center requests proposals from the collectors, to get the best proposal
+                    msg.set_metadata("performative", "cfp")
+                    data = {
+                        "trash_occupancies_dict": self.agent.trash_occupancies,
+                        "best_path": best_path,
+                        "routes": routes_array,
+                    }
+                    msg.body = json.dumps(data)
+                    await self.send(msg)

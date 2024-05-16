@@ -32,7 +32,7 @@ class CollectionCenter(agent.Agent):
         a = ReceiveMessages_Behav()
 
         # start after 20 seconds
-        start_at = datetime.datetime.now() + datetime.timedelta(seconds=20)
+        start_at = datetime.datetime.now() + datetime.timedelta(seconds=40)
         b = ProposeCollectors_Behav(period = 3, start_at = start_at) # run every 3 seconds
 
         # create a template so that the ReceiveMessages Behaviour can't receive proposals

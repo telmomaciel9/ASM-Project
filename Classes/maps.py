@@ -53,7 +53,8 @@ class GraphMap:
         # convert excluded_locations in jids to indexes
         excluded_locations = [self.jid_to_index[jid] for jid in excluded_locations_jids]
         best_path = self.find_optimal_path_tsp(trash_occupancies_dict, elapsed_time_collection, max_capacity=collector_capacity, excluded_nodes=excluded_locations)
-        assert best_path[0] == best_path[-1] # the start and end location is the same (trash center)
+        if len(best_path) > 2:
+            assert best_path[0] == best_path[-1] # the start and end location is the same (trash center)
 
         # now we need to change best_path, because it contains the indexes of the agents in the path, instead of their jid's
         jids_path = [self.index_to_agent[i] for i in best_path]
