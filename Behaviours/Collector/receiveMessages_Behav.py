@@ -78,11 +78,13 @@ class ReceiveMessages_Behav(CyclicBehaviour):
     async def handle_confirm_trash(self, data):
         trash_to_dispose = data
         self.agent.current_occupancy = min(self.agent.current_occupancy + trash_to_dispose, self.agent.collector_capacity)
+        await self.inform_capacity_to_center()
 
     async def handle_confirm_center(self):
         # Collector is in the center, so the trash is disposed
         print(f"{self.agent.name}: Received answer from center, disposing trash")
         self.agent.current_occupancy = 0
+        await self.inform_capacity_to_center()
 
     async def handle_cfp(self, data):
         # proposal request
@@ -100,3 +102,17 @@ class ReceiveMessages_Behav(CyclicBehaviour):
         }
         msg.body = json.dumps(data)
         await self.send(msg) # send msg to collection center / trash
+
+    async def inform_capacity_to_center(self):
+        # read current occupancy of the trash
+        remaining_capacity = self.agent.collector_capacity - self.agent.current_occupancy
+
+        # inform capacity to the central
+        msg = Message(to=self.get('center_jid'))
+        data = {
+            "remaining_capacity": remaining_capacity,
+        }
+        msg.body = json.dumps(data)
+        msg.set_metadata("performative", "inform_collector_capacity") # set the message inform
+
+        await self.send(msg) # send msg to collection center

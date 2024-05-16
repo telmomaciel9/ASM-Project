@@ -67,8 +67,7 @@ if __name__ == '__main__':
         collector_agent.collector_capacity = collector_capacities[i]
         collector_agents.append(collector_agent)
 
-    # associate the trash collector agents to the collection center agent
-    center_agent.set_collectors(collector_agents)
+    center_agent.set_collectors(collector_jids)
     center_agent.set('position', center_position) # set the map of trash agents and central
     center_agent.set('threshold', min([collector_agent.collector_capacity for collector_agent in collector_agents]))
 

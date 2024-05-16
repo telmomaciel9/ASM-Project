@@ -9,16 +9,16 @@ In the simulation, there is only one collection center.
 """
 class CollectionCenter(agent.Agent):
 
-    # dict that maps trash names to their trash occupancy in kg
+    # dict that maps trash jids to their trash occupancy in kg
     trash_occupancies = {}
+    # dict that maps collector jids to their remaining capacities
+    collector_remaining_capacities = {}
     # maps collectors jids to booleans that represent the collectors availability. If False, collector is currently collecting trash
     available_collectors = {}
-    # maps collector jids to the trash collector object
-    jid_to_collector = {}
-     # dictionary that stores the path proposals of the trash collectors
+    # dictionary that stores the path proposals of the trash collectors
     collector_proposals = {}
     # maps the jid of collectors to the path they are currently collecting trash
-    collector_to_path = {} 
+    collector_to_path = {}
 
     async def setup(self):
         print("Collection Center Agent {}".format(str(self.jid)) + " starting...")
@@ -55,12 +55,10 @@ class CollectionCenter(agent.Agent):
         self.locations_map = locations_map
 
     # receives array with trash collector agents and maps their jids to whether or not they are being used on the road (boolean)
-    def set_collectors(self, trash_collectors):
+    def set_collectors(self, collector_jids):
         self.jid_to_collector = {}
-        for collector in trash_collectors:
-            collector_jid = str(collector.jid)
+        for collector_jid in collector_jids:
             self.available_collectors[collector_jid] = True
-            self.jid_to_collector[collector_jid] = collector
 
     def set_collector_availability(self, collector_jid, availability, path=None):
         self.available_collectors[collector_jid] = availability
@@ -85,14 +83,12 @@ class CollectionCenter(agent.Agent):
     def get_collector_capacity_on_the_road(self):
         # returns the total capacity of the collectors on the road
         total_capacity = 0
-        for collector_jid, available in self.available_collectors.items():
-            if not available:
+        for collector_jid, remaining_capacity in self.collector_remaining_capacities.items():
+            availability = self.available_collectors[collector_jid]
+            if not availability:
                 # we only count if the availability of the collector is False. This way the collector is on the road
-                collector = self.jid_to_collector[collector_jid]
-                collector_capacity = collector.collector_capacity - collector.current_occupancy
-                total_capacity += collector_capacity
+                total_capacity += remaining_capacity
         return total_capacity
-
 
     # def get_best_path(self, collector_capacity):
     #     # best_path is an array which contains the jid's of the agents in the path

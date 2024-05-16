@@ -24,7 +24,7 @@ class InformCapacity_Behav (PeriodicBehaviour):
             "current_occupancy": current_occupancy,
         }
         msg.body = json.dumps(data)
-        msg.set_metadata("performative", "inform") # set the message inform
+        msg.set_metadata("performative", "inform_trash_occupancy") # set the message inform
 
         await self.send(msg) # send msg to collection center
 
