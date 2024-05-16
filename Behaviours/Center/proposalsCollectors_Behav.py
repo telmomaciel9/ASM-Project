@@ -33,16 +33,17 @@ class ProposeCollectors_Behav(PeriodicBehaviour):
             template = Template(metadata={"performative": "propose"})
             self.agent.add_behaviour(receive_proposals_behaviour, template)
 
+            excluded_locations = self.agent.get_excluded_paths()
+            best_path, _, routes_array = self.agent.get_best_path(self.agent.elapsed_time_collection, excluded_locations)
             for collector_jid in available_collectors_jids:
                 # for each collector, issue a call for proposals
                 msg = Message(to=collector_jid)
                 # issue a call for proposals. Center requests proposals from the collectors, to get the best proposal
                 msg.set_metadata("performative", "cfp")
-                excluded_locations = self.agent.get_excluded_paths()
                 data = {
                     "trash_occupancies_dict": self.agent.trash_occupancies,
-                    "elapsed_time_collection": self.agent.elapsed_time_collection,
-                    "excluded_locations": excluded_locations,
+                    "best_path": best_path,
+                    "routes": routes_array,
                 }
                 msg.body = json.dumps(data)
                 await self.send(msg)

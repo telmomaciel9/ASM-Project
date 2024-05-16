@@ -29,6 +29,8 @@ if __name__ == '__main__':
     n_collectors = config.n_collectors
     # this variable represents the max capacities of the trash collector agents
     collector_capacities = config.collector_capacities
+    # this array contains the amount of gas spent per 100km for each collector
+    collectors_gas_per_100km = config.collectors_gas_per_100km
     # this variable represents the number of trashes in the simulation
     n_trashes = config.n_trashes
     # get position objects of the agents
@@ -65,6 +67,7 @@ if __name__ == '__main__':
         collector_agent.set('position', center_position) # set the position of the agent to the center position (trash collectors start at the center)
         collector_agent.set('positions', jids_to_position_dict)
         collector_agent.collector_capacity = collector_capacities[i]
+        collector_agent.gas_per_100km = collectors_gas_per_100km[i]
         collector_agents.append(collector_agent)
 
     center_agent.set_collectors(collector_jids)

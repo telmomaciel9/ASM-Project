@@ -5,6 +5,7 @@
     ],
     "number_of_collectors": 4,
     "collector_capacities": [500, 500, 750, 1000],
+    "gas_per_100km": [10, 10, 20, 40],
     "number_of_trashes": 20,
     "trash_positions": [
         [
@@ -90,6 +91,6 @@
     ],
     "truck_velocity": 50,
     "simulation_speed": 50,
-    "trash_occupancy_per_hour": 1,
+    "trash_occupancy_per_hour": 40,
     "images_directory": "images/"
 }

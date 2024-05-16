@@ -89,11 +89,11 @@ class ReceiveMessages_Behav(CyclicBehaviour):
     async def handle_cfp(self, data):
         # proposal request
         trash_occupancies_dict = data["trash_occupancies_dict"]
-        elapsed_time_collection = data["elapsed_time_collection"]
-        excluded_locations_set = data["excluded_locations"]
-        best_path, _, routes, rating = self.agent.get_best_path_rating(trash_occupancies_dict, elapsed_time_collection, excluded_locations_set)
+        best_path = data["best_path"]
+        routes = data["routes"]
+        rating = self.agent.calculate_rating(sum(list(trash_occupancies_dict.values())))
         # send proposal to the center agent
-        # the proposal contains the best path for this collector, along with the path's rating
+        # the proposal contains the best path and routes for this collector, along with the path's rating
         msg = Message(to=self.get('center_jid'))
         msg.set_metadata("performative", "propose") # set the message metadata
         data = {

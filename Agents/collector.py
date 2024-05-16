@@ -10,9 +10,7 @@ class TrashCollector(agent.Agent):
     async def setup(self):
         print("Trash Collector Agent {}".format(str(self.jid)) + " starting...")
         
-        #self.collector_capacity = 500 # max collector capacity
         self.current_occupancy = 0 # current occupancy of the collector (max is collector_capacity)
-        self.gas_per_100km = 10 # gas spent per 100km
         
         if self.get("position"):
             self.position = self.get("position")
@@ -58,12 +56,6 @@ class TrashCollector(agent.Agent):
         thread = threading.Thread(target=update_positions)
         thread.daemon = True  # Set as a daemon so it will automatically close when the main program exits
         thread.start()
-
-    def get_best_path_rating(self, trash_occupancies_dict, elapsed_time_collection, excluded_locations):
-        total_occupancy = sum(list(trash_occupancies_dict.values()))
-        best_path, cost, routes = self.locations_map.find_best_path(trash_occupancies_dict, elapsed_time_collection, self.collector_capacity, excluded_locations)
-        rating = self.calculate_rating(total_occupancy)
-        return best_path, cost, routes, rating
 
     def get_route_to_central(self, current_jid=None):
         if not current_jid:

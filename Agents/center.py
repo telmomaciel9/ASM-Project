@@ -93,9 +93,9 @@ class CollectionCenter(agent.Agent):
                 total_capacity += remaining_capacity
         return total_capacity
 
-    # def get_best_path(self, collector_capacity):
-    #     # best_path is an array which contains the jid's of the agents in the path
-    #     # cost_array is an array which contains the cost of each transition in the path
-    #     best_path, cost_array, routes_array = self.locations_map.find_best_path(self.trash_occupancies, collector_capacity)
-    #     return best_path, cost_array, routes_array
+    def get_best_path(self, elapsed_time_collection, excluded_locations):
+        # best_path is an array which contains the jid's of the agents in the path
+        # cost_array is an array which contains the cost of each transition in the path
+        best_path, cost_array, routes_array = self.locations_map.find_best_path(self.trash_occupancies, elapsed_time_collection, excluded_locations, collector_capacity=None)
+        return best_path, cost_array, routes_array
 

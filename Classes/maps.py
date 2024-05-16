@@ -49,11 +49,11 @@ class GraphMap:
                     self.distance_matrix[i][j] = self.distance_matrix[j][i] = route_length
 
 
-    def find_best_path(self, trash_occupancies_dict, elapsed_time_collection, collector_capacity, excluded_locations_jids):
+    def find_best_path(self, trash_occupancies_dict, elapsed_time_collection, excluded_locations_jids, collector_capacity=None):
         # convert excluded_locations in jids to indexes
         excluded_locations = [self.jid_to_index[jid] for jid in excluded_locations_jids]
-        best_path = self.find_optimal_path_tsp(trash_occupancies_dict, elapsed_time_collection, collector_capacity, excluded_nodes=excluded_locations)
-        # best_path[0] == best_path[-1] -> the start and end location is the same (trash center)
+        best_path = self.find_optimal_path_tsp(trash_occupancies_dict, elapsed_time_collection, max_capacity=collector_capacity, excluded_nodes=excluded_locations)
+        assert best_path[0] == best_path[-1] # the start and end location is the same (trash center)
 
         # now we need to change best_path, because it contains the indexes of the agents in the path, instead of their jid's
         jids_path = [self.index_to_agent[i] for i in best_path]
@@ -94,7 +94,7 @@ class GraphMap:
     finds the optimal path using a TSP (Travelling Salesman Problem) solver
     trash_occupancies maps trash jids to their occupancies
     """
-    def find_optimal_path_tsp(self, trash_occupancies, elapsed_time_collection, max_capacity, excluded_nodes=[]):
+    def find_optimal_path_tsp(self, trash_occupancies, elapsed_time_collection, max_capacity=None, excluded_nodes=[]):
         distance_matrix = self.distance_matrix
         # Create a complete graph from the distance matrix
         G = nx.Graph()  # Changed to a simple Graph instead of complete graph initialization
@@ -146,7 +146,7 @@ class GraphMap:
                 else:
                     trash_jid = self.index_to_agent[node]
                     occupancy = trash_occupancies[trash_jid]
-                if current_load + occupancy <= max_capacity:
+                if not max_capacity or (current_load + occupancy <= max_capacity):
                     path.append(node)
                     current_load += occupancy
                 else:
