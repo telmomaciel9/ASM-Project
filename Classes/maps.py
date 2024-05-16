@@ -53,6 +53,7 @@ class GraphMap:
         # convert excluded_locations in jids to indexes
         excluded_locations = [self.jid_to_index[jid] for jid in excluded_locations_jids]
         best_path = self.find_optimal_path_tsp(trash_occupancies_dict, elapsed_time_collection, max_capacity=collector_capacity, excluded_nodes=excluded_locations)
+        print(best_path)
         if len(best_path) > 2:
             assert best_path[0] == best_path[-1] # the start and end location is the same (trash center)
 
@@ -144,18 +145,19 @@ class GraphMap:
             for node in ordered_cycle[1:]:
                 if node == start_node: # if node is the start location, we set the cost to 0
                     continue
-                else:
+                elif path[-1] != node:
+                    # only run if the current node is different from the last. Because we can't have the same node twice in a row
                     trash_jid = self.index_to_agent[node]
                     occupancy = trash_occupancies[trash_jid]
-                if not max_capacity or (current_load + occupancy <= max_capacity):
-                    path.append(node)
-                    current_load += occupancy
-                else:
-                    # Go to node and then go to start location
-                    path.append(node)
-                    path.append(start_location)
-                    current_load = occupancy
-                    break
+                    if not max_capacity or (current_load + occupancy <= max_capacity):
+                        path.append(node)
+                        current_load += occupancy
+                    else:
+                        # Go to node and then go to start location
+                        path.append(node)
+                        path.append(start_location)
+                        current_load = occupancy
+                        break
 
             # Ensure returning to the start location if not already there
             if path[-1] != start_location:
