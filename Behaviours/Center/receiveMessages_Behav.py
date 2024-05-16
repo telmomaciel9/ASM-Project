@@ -29,8 +29,6 @@ class ReceiveMessages_Behav(CyclicBehaviour):
                 await self.handle_inform_collector_capacity(data, sender_jid)
             elif performative == 'collector_inform':
                 await self.handle_collector_inform(sender_jid)
-            elif performative == 'propose':
-                await self.handle_propose(data, sender_jid)
             else:
                 print("Agent {}:".format(str(self.agent.name)) + " Message not understood!, performative - '" + performative + "'")
         else:
@@ -38,7 +36,9 @@ class ReceiveMessages_Behav(CyclicBehaviour):
 
     async def handle_inform_trash_occupancy(self, data, trash_jid):
         occupancy = data["current_occupancy"]
+        elapsed_time_seconds = data["elapsed_time_seconds"]
         self.agent.trash_occupancies[trash_jid] = occupancy
+        self.agent.elapsed_time_collection[trash_jid] = elapsed_time_seconds
 
     async def handle_inform_collector_capacity(self, data, collector_jid):
         remaining_capacity = data["remaining_capacity"]
@@ -54,11 +54,3 @@ class ReceiveMessages_Behav(CyclicBehaviour):
         #msg.body = json.dumps(json.dumps({})) # empty message
         send_msg.set_metadata("performative", "confirm_center") # set the message metadata
         await self.send(send_msg) # send message to collector
-
-    async def handle_propose(self, data, collector_jid):
-        # received path and rating proposal from collector agent
-        best_path = data["best_path"]
-        routes = data["routes"]
-        rating = data["rating"]
-        self.agent.collector_proposals[collector_jid] = (rating, best_path, routes)
-        print(f"Center: Received proposal from {collector_jid}")

@@ -2,6 +2,7 @@ from spade.message import Message
 from spade.behaviour import CyclicBehaviour
 from util import jid_to_name
 import json
+from datetime import datetime
 
 """
 Trash Agent behaviour
@@ -26,6 +27,9 @@ class DisposeTrash_Behav(CyclicBehaviour):
 
                 # deduct the trash to dispose from the current trash occupancy
                 self.agent.current_occupancy -= trash_to_dispose
+
+                # Reset the last gathered time to the current time
+                self.agent.last_gathered_time = datetime.now()
 
                 # create message to be sent to the trash collector
                 msg = Message(to=collector_jid)

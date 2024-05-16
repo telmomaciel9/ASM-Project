@@ -3,6 +3,7 @@ from spade import agent
 from Behaviours.Trash.informCapacity_Behav import InformCapacity_Behav
 from Behaviours.Trash.disposeTrash_Behav import DisposeTrash_Behav
 
+from datetime import datetime
 import random
 
 class Trash(agent.Agent):
@@ -15,6 +16,8 @@ class Trash(agent.Agent):
 
         self.trash_capacity = 100 # max trash capacity
 
+        # Initialize the last gathered time to the current time
+        self.last_gathered_time = datetime.now()
         # Set current_occupancy to a random value that is higher than half of the total capacity
         self.current_occupancy = random.randint(self.trash_capacity/2, self.trash_capacity)
         

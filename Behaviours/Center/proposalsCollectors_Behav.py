@@ -15,10 +15,14 @@ total_occupancy_threshold = 100
 class ProposeCollectors_Behav(PeriodicBehaviour):
     async def run(self):
 
-        total_occupancy_threshold = self.get('threshold') # get the threshold variable and set the occupancy threshold
+        total_occupancy_threshold = 0.75 * self.get('threshold') # get the threshold variable and set the occupancy threshold
+
+        total_trash_occupancy = sum(list(self.agent.trash_occupancies.values()))
+        collector_remaining_capacities = self.agent.get_collector_capacity_on_the_road()
+        num_available_collectors = self.agent.get_number_of_available_collectors()
 
         # If the trash occupancy of all trashes combined subtracted by the total capacity of collectors on the road excedes the threshold, we send a collector
-        if (sum(list(self.agent.trash_occupancies.values())) - self.agent.get_collector_capacity_on_the_road()) > total_occupancy_threshold and self.agent.get_number_of_available_collectors() >= 0:
+        if (total_trash_occupancy - collector_remaining_capacities) > total_occupancy_threshold and num_available_collectors >= 0:
             # get the jids of the available collectors
             available_collectors_jids = self.agent.get_available_collectors_jids()
             num_available_collectors = len(available_collectors_jids)
@@ -37,6 +41,7 @@ class ProposeCollectors_Behav(PeriodicBehaviour):
                 excluded_locations = self.agent.get_excluded_paths()
                 data = {
                     "trash_occupancies_dict": self.agent.trash_occupancies,
+                    "elapsed_time_collection": self.agent.elapsed_time_collection,
                     "excluded_locations": excluded_locations,
                 }
                 msg.body = json.dumps(data)

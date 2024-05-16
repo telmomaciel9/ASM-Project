@@ -49,10 +49,10 @@ class GraphMap:
                     self.distance_matrix[i][j] = self.distance_matrix[j][i] = route_length
 
 
-    def find_best_path(self, trash_occupancies_dict, collector_capacity, excluded_locations_jids):
+    def find_best_path(self, trash_occupancies_dict, elapsed_time_collection, collector_capacity, excluded_locations_jids):
         # convert excluded_locations in jids to indexes
         excluded_locations = [self.jid_to_index[jid] for jid in excluded_locations_jids]
-        best_path = self.find_optimal_path_tsp(trash_occupancies_dict, collector_capacity, excluded_nodes=excluded_locations)
+        best_path = self.find_optimal_path_tsp(trash_occupancies_dict, elapsed_time_collection, collector_capacity, excluded_nodes=excluded_locations)
         # best_path[0] == best_path[-1] -> the start and end location is the same (trash center)
 
         # now we need to change best_path, because it contains the indexes of the agents in the path, instead of their jid's
@@ -94,7 +94,7 @@ class GraphMap:
     finds the optimal path using a TSP (Travelling Salesman Problem) solver
     trash_occupancies maps trash jids to their occupancies
     """
-    def find_optimal_path_tsp(self, trash_occupancies, max_capacity, excluded_nodes=[]):
+    def find_optimal_path_tsp(self, trash_occupancies, elapsed_time_collection, max_capacity, excluded_nodes=[]):
         distance_matrix = self.distance_matrix
         # Create a complete graph from the distance matrix
         G = nx.Graph()  # Changed to a simple Graph instead of complete graph initialization
@@ -111,7 +111,18 @@ class GraphMap:
             for j in range(i + 1, num_nodes):
                 if j in excluded_nodes:
                     continue
-                G.add_edge(i, j, weight=distance_matrix[i][j])
+                i_jid = self.index_to_agent[i]
+                j_jid = self.index_to_agent[j]
+                edge_weight = distance_matrix[i][j]
+
+                # the start node doesnt have an elapsed time since the last trash collection, because the start node is the CollectionCenter
+                # so we only change the edge_weight if the nodes aren't the start node
+                if i != start_node:
+                    edge_weight += elapsed_time_collection[i_jid]
+                if j != start_node:
+                    edge_weight += elapsed_time_collection[j_jid]
+
+                G.add_edge(i, j, weight=edge_weight)
 
         # Solve TSP using an approximation method, considering only included nodes
         if len(G.nodes) > 0:
@@ -131,7 +142,7 @@ class GraphMap:
 
             for node in ordered_cycle[1:]:
                 if node == start_node: # if node is the start location, we set the cost to 0
-                    occupancy = 0
+                    continue
                 else:
                     trash_jid = self.index_to_agent[node]
                     occupancy = trash_occupancies[trash_jid]

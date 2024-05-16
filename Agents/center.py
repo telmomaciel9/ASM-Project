@@ -1,4 +1,5 @@
 from spade import agent
+from spade.template import Template
 import datetime
 
 from Behaviours.Center.receiveMessages_Behav import ReceiveMessages_Behav
@@ -11,12 +12,12 @@ class CollectionCenter(agent.Agent):
 
     # dict that maps trash jids to their trash occupancy in kg
     trash_occupancies = {}
+    # dict that maps trash jids to the time in seconds since they were last collected
+    elapsed_time_collection = {}
     # dict that maps collector jids to their remaining capacities
     collector_remaining_capacities = {}
     # maps collectors jids to booleans that represent the collectors availability. If False, collector is currently collecting trash
     available_collectors = {}
-    # dictionary that stores the path proposals of the trash collectors
-    collector_proposals = {}
     # maps the jid of collectors to the path they are currently collecting trash
     collector_to_path = {}
 
@@ -34,7 +35,9 @@ class CollectionCenter(agent.Agent):
         start_at = datetime.datetime.now() + datetime.timedelta(seconds=20)
         b = ProposeCollectors_Behav(period = 3, start_at = start_at) # run every 3 seconds
 
-        self.add_behaviour(a)
+        # create a template so that the ReceiveMessages Behaviour can't receive proposals
+        complement_template = Template(metadata={"performative": "propose"})
+        self.add_behaviour(a, ~complement_template) # add the complement of the template so that it can't receive proposals
         self.add_behaviour(b)
 
     def get_available_collector_jid(self):
