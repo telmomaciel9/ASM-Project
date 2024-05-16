@@ -27,17 +27,19 @@ class ProposeCollectors_Behav(PeriodicBehaviour):
             available_collectors_jids = self.agent.get_available_collectors_jids()
             num_available_collectors = len(available_collectors_jids)
 
-            # Create and add the one-shot behavior for receiving proposals
-            receive_proposals_behaviour = ReceiveProposals_Behav(num_available_collectors)
-            # set a template in the one shot behaviour so that it can only receive messages with performative equals to "propose"
-            template = Template(metadata={"performative": "propose"})
-            self.agent.add_behaviour(receive_proposals_behaviour, template)
-
             excluded_locations = self.agent.get_excluded_paths()
             best_path, _, routes_array = self.agent.get_best_path(self.agent.elapsed_time_collection, excluded_locations)
 
             # dont send cfp if the path doesnt have any nodes other than the start node
             if len(best_path) > 2:
+
+                # Create and add the one-shot behavior for receiving proposals
+                receive_proposals_behaviour = ReceiveProposals_Behav(num_available_collectors)
+                # set a template in the one shot behaviour so that it can only receive messages with performative equals to "propose"
+                template = Template(metadata={"performative": "propose"})
+                self.agent.add_behaviour(receive_proposals_behaviour, template)
+
+                # send the cfp for each available collector
                 for collector_jid in available_collectors_jids:
                     # for each collector, issue a call for proposals
                     msg = Message(to=collector_jid)
