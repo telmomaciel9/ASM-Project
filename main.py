@@ -96,6 +96,8 @@ if __name__ == '__main__':
         future = collector_agent.start(auto_register=True) # start trash collector agent
         future.result() # wait for the agent to start
 
+    center_agent.start_requesting_collectors()
+
 
     while center_agent.is_alive():
         try:

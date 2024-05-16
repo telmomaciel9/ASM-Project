@@ -42,7 +42,10 @@ class ReceiveMessages_Behav(CyclicBehaviour):
 
     async def handle_inform_collector_capacity(self, data, collector_jid):
         remaining_capacity = data["remaining_capacity"]
+        collector_location = data["current_location"]
+        print(f"Center: {collector_jid}'s current location is {collector_location}")
         self.agent.collector_remaining_capacities[collector_jid] = remaining_capacity
+        self.agent.update_excluded_locations(collector_jid, collector_location, remaining_capacity)
 
     async def handle_collector_inform(self, collector_jid):
         print(f"Center: {jid_to_name(collector_jid)} has returned to the Collection Center!")

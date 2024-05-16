@@ -6,6 +6,10 @@ This behaviour is also responsible for receiving the amount of trash to dispose 
 
 from spade.message import Message
 from spade.behaviour import CyclicBehaviour
+from spade.template import Template
+
+from Behaviours.Collector.collectTrash_Behav import CollectTrash_Behav
+
 
 from util import jid_to_name
 import time
@@ -19,16 +23,13 @@ class ReceiveMessages_Behav(CyclicBehaviour):
         
         if msg:
             # Message Threatment based on different ACLMessage performatives
+            sender_jid = str(msg.sender)
             performative = msg.get_metadata("performative")
             data = None
             if msg.body:
                 data = json.loads(msg.body)  # deserialize JSON back to a path
             if performative == 'accept-proposal': # Handle request to go collect trash in a path
-                asyncio.create_task(self.handle_accept_proposal(data))
-            elif performative == 'confirm_trash':
-                await self.handle_confirm_trash(data)
-            elif performative == 'confirm_center':
-                await self.handle_confirm_center()
+                await self.handle_accept_proposal(data)
             elif performative == 'cfp':
                 await self.handle_cfp(data)
             else:
@@ -37,54 +38,15 @@ class ReceiveMessages_Behav(CyclicBehaviour):
     async def handle_accept_proposal(self, data):
         path = data["path"]
         routes = data["routes"]
-        if len(path) > 0 and path[0] == str(self.get('center_jid')):
-            # if the first location is the collection center, remove this from the path (because the trash collector starts there)
-            path.pop(0)
-        path_route = list(zip(path, routes))
-        collection_center_pos = self.agent.jid_to_position_dict[self.get("center_jid")]
-        for next_location, route in path_route:
-            # go to next_location
-            print("{}: Going to {}".format(self.agent.name, jid_to_name(next_location)))
-            # destination position is the position of the collection center agent
-            destination_pos = self.agent.jid_to_position_dict[next_location]
-            self.agent.go_to_position(route)
-            while self.agent.position != destination_pos:
-                await asyncio.sleep(0.1)  # Use asyncio.sleep instead of time.sleep
-            await self.inform_next_location(next_location)
+        print(f"{self.agent.name}: Accepted proposal. Path is {path}")
 
-            # check if collector is full
-            if self.agent.current_occupancy >= self.agent.collector_capacity and self.agent.position != collection_center_pos:
-                print("{}: Reached max occupancy. Going to collection center".format(self.agent.name))
-                route_to_central = self.agent.get_route_to_central(next_location)
-                self.agent.go_to_position(route_to_central)
-                while self.agent.position != collection_center_pos:
-                    await asyncio.sleep(0.1)  # Use asyncio.sleep instead of time.sleep
-                await self.inform_next_location(self.get("center_jid"))
-                break
-
-    async def inform_next_location(self, next_location):
-        # now that we are at the next agent's location, we inform it how much more capacity can this collector hold
-        max_additional_capacity = self.agent.collector_capacity - self.agent.current_occupancy
-        # create the data json
-        data = {
-            "max_additional_capacity": max_additional_capacity
-        }
-        # create the message with destination to the collection center / trash
-        msg = Message(to=next_location)
-        msg.set_metadata("performative", "collector_inform") # set the message metadata
-        msg.body = json.dumps(data)
-        await self.send(msg) # send msg to collection center / trash
-
-    async def handle_confirm_trash(self, data):
-        trash_to_dispose = data
-        self.agent.current_occupancy = min(self.agent.current_occupancy + trash_to_dispose, self.agent.collector_capacity)
-        await self.inform_capacity_to_center()
-
-    async def handle_confirm_center(self):
-        # Collector is in the center, so the trash is disposed
-        print(f"{self.agent.name}: Received answer from center, disposing trash")
-        self.agent.current_occupancy = 0
-        await self.inform_capacity_to_center()
+        # Create and add the one-shot behavior for collecting trash
+        collect_trash_behaviour = CollectTrash_Behav(path, routes)
+        # create the templates with the performatives that this behaviour receives only
+        template1 = Template(metadata={"performative": "confirm_trash"})
+        template2 = Template(metadata={"performative": "confirm_center"})
+        # we add an OR of the templates because the behaviour can receive any of the messages
+        self.agent.add_behaviour(collect_trash_behaviour, template1 | template2)
 
     async def handle_cfp(self, data):
         # proposal request
@@ -113,17 +75,3 @@ class ReceiveMessages_Behav(CyclicBehaviour):
         }
         msg.body = json.dumps(data)
         await self.send(msg) # send msg to collection center / trash
-
-    async def inform_capacity_to_center(self):
-        # read current occupancy of the trash
-        remaining_capacity = self.agent.collector_capacity - self.agent.current_occupancy
-
-        # inform capacity to the central
-        msg = Message(to=self.get('center_jid'))
-        data = {
-            "remaining_capacity": remaining_capacity,
-        }
-        msg.body = json.dumps(data)
-        msg.set_metadata("performative", "inform_collector_capacity") # set the message inform
-
-        await self.send(msg) # send msg to collection center

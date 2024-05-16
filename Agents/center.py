@@ -31,14 +31,15 @@ class CollectionCenter(agent.Agent):
 
         a = ReceiveMessages_Behav()
 
-        # start after 20 seconds
-        start_at = datetime.datetime.now() + datetime.timedelta(seconds=40)
-        b = ProposeCollectors_Behav(period = 3, start_at = start_at) # run every 3 seconds
-
         # create a template so that the ReceiveMessages Behaviour can't receive proposals
         complement_template = Template(metadata={"performative": "propose"})
         self.add_behaviour(a, ~complement_template) # add the complement of the template so that it can't receive proposals
+
+    def start_requesting_collectors(self):
+        start_at = datetime.datetime.now() + datetime.timedelta(seconds=5)
+        b = ProposeCollectors_Behav(period = 3, start_at = start_at) # run every 3 seconds
         self.add_behaviour(b)
+
 
     def get_available_collector_jid(self):
         for (collector_jid, is_available) in self.available_collectors.items():
@@ -75,6 +76,34 @@ class CollectionCenter(agent.Agent):
         # return the paths that colletors are currently going through
         concatenated_set = sum(self.collector_to_path.values(), [])
         return concatenated_set
+
+    def update_excluded_locations(self, collector_jid, collector_location_jid, remaining_capacity):
+        if collector_location_jid != self.jid:
+            collector_path = self.collector_to_path.get(collector_jid, None)
+            if collector_path:
+                # Find the index of the current location of the collector in the path
+                try:
+                    current_index = collector_path.index(collector_location_jid)
+                except ValueError:
+                    return  # If the current location is not in the path, exit the function
+
+                # Calculate the cumulative occupancy from the current location to the end of the path
+                cumulative_occupancy = 0
+                updated_path = collector_path[:current_index + 1]  # Keep the path up to the current location
+
+                for jid in collector_path[current_index + 1:]:
+                    occupancy = self.trash_occupancies.get(jid, 0)
+                    if cumulative_occupancy + occupancy <= remaining_capacity:
+                        cumulative_occupancy += occupancy
+                        updated_path.append(jid)
+                    else:
+                        # add the last element to the collector path so that it goes back to the central
+                        updated_path.append(collector_path[-1])
+                        break  # Stop adding to the path if the remaining capacity is exceeded
+
+                # Update the path for the collector
+                self.collector_to_path[collector_jid] = updated_path
+
 
     def get_number_of_available_collectors(self):
         num_available_collectors = 0

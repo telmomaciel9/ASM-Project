@@ -5,6 +5,8 @@ from Classes.Position import interpolate_points, Position
 import time
 from config import Config
 
+from spade.template import Template
+
 class TrashCollector(agent.Agent):
 
     async def setup(self):
@@ -28,9 +30,12 @@ class TrashCollector(agent.Agent):
 
         self.lock = threading.Lock()  # A lock to synchronize access to the position
 
-        a = ReceiveMessages_Behav()
-
-        self.add_behaviour(a)
+        receive_messages_behaviour = ReceiveMessages_Behav()
+        # create the templates with the performatives that this behaviour receives only
+        template1 = Template(metadata={"performative": "confirm_trash"})
+        template2 = Template(metadata={"performative": "confirm_center"})
+        # we add an OR of the templates and we complement it, because this behaviour can't receive neither of the above performatives
+        self.add_behaviour(receive_messages_behaviour, ~(template1 | template2))
 
     def update_position(self, new_pos):
         with self.lock:
