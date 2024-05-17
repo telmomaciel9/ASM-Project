@@ -34,10 +34,12 @@ class ReceiveProposals_Behav(OneShotBehaviour):
             if len(best_path) > 2 and self.agent.available_collectors[best_collector_jid]:
                 # the collector is only sent if the path has more than two nodes, and the collector is available.
                 # The start and end nodes are always the CollectionCenter, so we don't send the collector if it's only those two nodes
-                print(f"Center: Accepting proposal of {jid_to_name(best_collector_jid)}")
+                self.agent.log_text(f"Accepting proposal of {jid_to_name(best_collector_jid)}")
+                #print(f"Center: Accepting proposal of {jid_to_name(best_collector_jid)}")
                 await self.request_collector(best_collector_jid, best_path, routes)
         else:
-            print("Center: No collectors have responded with a path.")
+            self.agent.log_text(f"No collectors have responded with a path.")
+            #print("Center: No collectors have responded with a path.")
 
     """
     Given the jid of a collector, a path, and a route, request the collector to go on the specified path route

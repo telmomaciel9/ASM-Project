@@ -2,6 +2,7 @@ from spade import agent
 
 from Behaviours.Trash.informCapacity_Behav import InformCapacity_Behav
 from Behaviours.Trash.disposeTrash_Behav import DisposeTrash_Behav
+from log import Log
 
 from datetime import datetime
 import random
@@ -10,9 +11,11 @@ class Trash(agent.Agent):
 
     trash_capacity = 100
     current_occupancy = 0
+    log = Log("trash")
 
     async def setup(self):
-        print("Trash Agent '{}'".format(str(self.jid)) + " starting...")
+        # print("Trash Agent '{}'".format(str(self.jid)) + " starting...")
+        self.log_text(str(self.jid) + " starting...")
 
         self.trash_capacity = 100 # max trash capacity
 
@@ -25,10 +28,14 @@ class Trash(agent.Agent):
         if self.get("position"):
             self.position = self.get("position")
         else:
-            print(f"Trash Agent {self.jid}: position not defined!")
+            self.log_text(f"{self.jid}: position not defined!")
+            # print(f"Trash Agent {self.jid}: position not defined!")
 
         a = InformCapacity_Behav(period = 1)
         b = DisposeTrash_Behav()
 
         self.add_behaviour(a)
         self.add_behaviour(b)
+    
+    def log_text(self, text):
+        self.log.log(text)

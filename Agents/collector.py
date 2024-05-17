@@ -4,13 +4,16 @@ import threading
 from Classes.Position import interpolate_points, Position
 import time
 from config import Config
+from log import Log
 
 from spade.template import Template
 
 class TrashCollector(agent.Agent):
+    log = Log("collector")
 
     async def setup(self):
-        print("Trash Collector Agent {}".format(str(self.jid)) + " starting...")
+        self.log_text(str(self.jid) + " starting...")
+        # print("Trash Collector Agent {}".format(str(self.jid)) + " starting...")
         
         self.n_trips = 0 # number of times this collector has gathered trash
         self.current_occupancy = 0 # current occupancy of the collector (max is collector_capacity)
@@ -18,12 +21,14 @@ class TrashCollector(agent.Agent):
         if self.get("position"):
             self.position = self.get("position")
         else:
-            print(f"Trash Collector Agent {self.jid}: position not defined!")
+            self.log_text(f"{self.jid}: position not defined!")
+            # print(f"Trash Collector Agent {self.jid}: position not defined!")
             
         if self.get("positions"):
             self.jid_to_position_dict = self.get("positions")
         else:
-            print(f"Trash Collector Agent {self.jid}: positions dict not defined!")
+            self.log_text(f"{self.jid}: positions dict not defined!")
+            # print(f"Trash Collector Agent {self.jid}: positions dict not defined!")
 
         config = Config()
         self.jump_size = config.jump_size
@@ -43,7 +48,8 @@ class TrashCollector(agent.Agent):
             self.position = new_pos
 
     def set_map(self, locations_map):
-        print("Trash Collector: Set location map")
+        self.log_text("Set location map")
+        # print("Trash Collector: Set location map")
         self.locations_map = locations_map
 
     def go_to_position(self, route):
@@ -71,3 +77,6 @@ class TrashCollector(agent.Agent):
     # returns the rating of this trash collector given the total trash occupancy
     def calculate_rating(self, total_occupancy):
         return self.gas_per_100km + abs(total_occupancy - self.collector_capacity)
+
+    def log_text(self, text):
+        self.log.log(text)
