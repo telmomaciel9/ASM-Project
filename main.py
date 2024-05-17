@@ -108,10 +108,10 @@ if __name__ == '__main__':
             simulator.update_positions(collector_positions, trash_positions, collector_occupancies, trash_occupancies)
             time.sleep(simulation_update_interval)
         except KeyboardInterrupt:
+            simulator.stop(trash_agents, collector_agents)
             (agent.stop() for agent in trash_agents)
             (agent.stop() for agent in collector_agents)
             center_agent.stop()
-            simulator.stop()
             break
     print('Agents finished')
     # finish all the agents and behaviors running in your process

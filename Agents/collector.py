@@ -12,6 +12,7 @@ class TrashCollector(agent.Agent):
     async def setup(self):
         print("Trash Collector Agent {}".format(str(self.jid)) + " starting...")
         
+        self.n_trips = 0 # number of times this collector has gathered trash
         self.current_occupancy = 0 # current occupancy of the collector (max is collector_capacity)
         
         if self.get("position"):

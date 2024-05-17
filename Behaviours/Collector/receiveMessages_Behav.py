@@ -40,6 +40,9 @@ class ReceiveMessages_Behav(CyclicBehaviour):
         routes = data["routes"]
         print(f"{self.agent.name}: Accepted proposal. Path is {path}")
 
+        # increase the number of trips done by this collector
+        self.agent.n_trips += 1
+
         # Create and add the one-shot behavior for collecting trash
         collect_trash_behaviour = CollectTrash_Behav(path, routes)
         # create the templates with the performatives that this behaviour receives only

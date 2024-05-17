@@ -50,6 +50,7 @@ class Simulator:
 
         # Calculate the maximum distance to any trash position
         center_distance = self.calculate_center_distance(trash_positions, center_location) + 100  # Add buffer distance
+        print(center_distance)
         self.image_size = (800, 800)
         self.G = _download_map_area(center_location, center_distance)  # center_distance are the meters around the center visible in the map
         self.bbox, self.map_image = _save_map_as_image(self.G, map_image_path, center_position=center_location, dist=center_distance, image_size=self.image_size)
@@ -139,10 +140,14 @@ class Simulator:
             self.canvas.coords(self.trash_texts[i], position_pixels[0], position_pixels[1] - 10)
         self.root.update_idletasks()
 
-    def stop(self):
+    def stop(self, trash_agents, collector_agents):
         # Calculate the elapsed time
         elapsed_time = time.time() - self.start_time
+        total_initial_occupancy = sum([trash.initial_occupancy for trash in trash_agents])
+        total_n_trips = sum([collector.n_trips for collector in collector_agents])
         # Print the elapsed time
-        print(f"Simulation ended. Elapsed time: {elapsed_time:.2f} seconds.")
+        print(f"Simulation ended. Elapsed time: {elapsed_time:.2f} seconds.\n\
+        Total initial trash occupancy: {total_initial_occupancy:.2f}kg\n\
+        Total collectors trips: {total_n_trips}")
         # Destroy the Tkinter window
         self.root.destroy()

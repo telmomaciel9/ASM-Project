@@ -19,7 +19,8 @@ class Trash(agent.Agent):
         # Initialize the last gathered time to the current time
         self.last_gathered_time = datetime.now()
         # Set current_occupancy to a random value that is higher than half of the total capacity
-        self.current_occupancy = random.randint(self.trash_capacity/2, self.trash_capacity)
+        self.initial_occupancy = random.randint(self.trash_capacity/2, self.trash_capacity)
+        self.current_occupancy = self.initial_occupancy
         
         if self.get("position"):
             self.position = self.get("position")

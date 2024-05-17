@@ -90,7 +90,7 @@
         ]
     ],
     "truck_velocity": 50,
-    "simulation_speed": 100,
-    "trash_occupancy_per_hour": 40,
+    "simulation_speed": 50,
+    "trash_occupancy_per_hour": 1,
     "images_directory": "images/"
 }
