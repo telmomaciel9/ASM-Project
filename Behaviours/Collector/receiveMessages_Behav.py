@@ -33,14 +33,12 @@ class ReceiveMessages_Behav(CyclicBehaviour):
             elif performative == 'cfp':
                 await self.handle_cfp(data)
             else:
-                self.agent.log_text("Message not understood!")
-                # print("Agent {}:".format(str(self.agent.name)) + " Message not understood!")
+                print("Agent {}:".format(str(self.agent.name)) + " Message not understood!")
 
     async def handle_accept_proposal(self, data):
         path = data["path"]
         routes = data["routes"]
-        self.agent.log_text(f"Accepted proposal. Path is {path}")
-        # print(f"{self.agent.name}: Accepted proposal. Path is {path}")
+        print(f"{self.agent.name}: Accepted proposal. Path is {path}")
 
         # increase the number of trips done by this collector
         self.agent.n_trips += 1

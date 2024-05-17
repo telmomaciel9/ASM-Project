@@ -23,8 +23,7 @@ class DisposeTrash_Behav(CyclicBehaviour):
                 data = json.loads(msg.body)
                 max_additional_capacity = data["max_additional_capacity"]
                 trash_to_dispose = min(max_additional_capacity, self.agent.current_occupancy)
-                self.agent.log_text(f"Disposing {trash_to_dispose:.2f}kg to {jid_to_name(collector_jid)}")
-                #print(f"{self.agent.name}: Disposing {trash_to_dispose:.2f}kg to {jid_to_name(collector_jid)}")
+                print(f"{self.agent.name}: Disposing {trash_to_dispose:.2f}kg to {jid_to_name(collector_jid)}")
 
                 # deduct the trash to dispose from the current trash occupancy
                 self.agent.current_occupancy -= trash_to_dispose

@@ -11,8 +11,8 @@ from Classes.simulation import Simulator
 
 from config import Config
 
-#XMPP_SERVER = 'ubuntu.myguest.virtualbox.org' # XMPP_SERVER
-XMPP_SERVER = '183sawyer'
+XMPP_SERVER = 'ubuntu.myguest.virtualbox.org' # XMPP_SERVER
+#XMPP_SERVER = '183sawyer'
 PASSWORD = 'NOPASSWORD' # password
 
 simulation_update_interval = 0.02
@@ -113,7 +113,6 @@ if __name__ == '__main__':
             (agent.stop() for agent in collector_agents)
             center_agent.stop()
             break
-        
     print('Agents finished')
     # finish all the agents and behaviors running in your process
     quit_spade()

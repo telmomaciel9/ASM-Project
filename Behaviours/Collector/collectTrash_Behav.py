@@ -11,6 +11,7 @@ class CollectTrash_Behav(OneShotBehaviour):
         self.routes = routes
 
     async def on_start(self):
+        print("on start)")
         self.collection_center_pos = self.agent.jid_to_position_dict[self.get("center_jid")]
 
     async def run(self):
@@ -44,8 +45,7 @@ class CollectTrash_Behav(OneShotBehaviour):
     Gets the amount of trash to dispose and updates the current occupancy
     """
     async def handle_confirm_trash(self, data, sender_jid):
-        self.agent.log_text(f"Received confirm from {jid_to_name(sender_jid)}, collecting trash")
-        # print(f"{self.agent.name}: Received confirm from {jid_to_name(sender_jid)}, collecting trash")
+        print(f"{self.agent.name}: Received confirm from {jid_to_name(sender_jid)}, collecting trash")
         trash_to_dispose = data
         self.agent.current_occupancy = min(self.agent.current_occupancy + trash_to_dispose, self.agent.collector_capacity)
         await self.inform_capacity_to_center(sender_jid)
@@ -56,8 +56,7 @@ class CollectTrash_Behav(OneShotBehaviour):
     """
     async def handle_confirm_center(self, sender_jid):
         # Collector is in the center, so the trash is disposed
-        self.agent.log_text(f"Received confirm from center, disposing trash")
-        #print(f"{self.agent.name}: Received confirm from center, disposing trash")
+        print(f"{self.agent.name}: Received confirm from center, disposing trash")
         self.agent.current_occupancy = 0
         await self.inform_capacity_to_center(sender_jid)
 
@@ -88,8 +87,7 @@ class CollectTrash_Behav(OneShotBehaviour):
     """
     async def go_to_location(self, location, route):
         # go to next_location
-        self.agent.log_text(f"Going to {jid_to_name(location)}")
-        # print("{}: Going to {}".format(self.agent.name, jid_to_name(location)))
+        print("{}: Going to {}".format(self.agent.name, jid_to_name(location)))
         #print(f"route is {route}")
         # destination position is the position of the collection center agent
         destination_pos = self.agent.jid_to_position_dict[location]
@@ -112,13 +110,11 @@ class CollectTrash_Behav(OneShotBehaviour):
         elif performative == "confirm_center":
             await self.handle_confirm_center(sender_jid)
         else:
-            self.agent.log_text(f"Didn't receive confirm of {jid_to_name(location)}")
-            #print(f"{self.agent.name}: Didn't receive confirm of {jid_to_name(location)}")
+            print(f"{self.agent.name}: Didn't receive confirm of {jid_to_name(location)}")
 
         # check if collector is full
         if self.agent.current_occupancy >= self.agent.collector_capacity and self.agent.position != self.collection_center_pos:
-            self.agent.log_text("Reached max occupancy.")
-            # print("{}: Reached max occupancy.".format(self.agent.name))
+            print("{}: Reached max occupancy.".format(self.agent.name))
             route_to_central = self.agent.get_route_to_central(location)
             await self.go_to_location(self.get("center_jid"), route_to_central)
             return False

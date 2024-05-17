@@ -4,7 +4,6 @@ import datetime
 
 from Behaviours.Center.receiveMessages_Behav import ReceiveMessages_Behav
 from Behaviours.Center.proposalsCollectors_Behav import ProposeCollectors_Behav
-from log import Log
 
 """
 In the simulation, there is only one collection center.
@@ -22,19 +21,13 @@ class CollectionCenter(agent.Agent):
     # maps the jid of collectors to the path they are currently collecting trash
     collector_to_path = {}
 
-    def __init__(self, jid, password):
-        super().__init__(jid, password)
-        self.log = Log(self.name)
-
     async def setup(self):
-        self.log_text(str(self.jid) + "starting...")
-        # print("Collection Center Agent {}".format(str(self.jid)) + " starting...")
+        print("Collection Center Agent {}".format(str(self.jid)) + " starting...")
         
         if self.get("position"):
             self.position = self.get("position")
         else:
-            self.log_text("position not defined!")
-            # print("Collection Center: position not defined!")
+            print("Collection Center: position not defined!")
 
         a = ReceiveMessages_Behav()
 
@@ -62,8 +55,7 @@ class CollectionCenter(agent.Agent):
         return collector_jids
 
     def set_map(self, locations_map):
-        self.log_text("Set location map")
-        # print("Collection Center: Set location map")
+        print("Collection Center: Set location map")
         self.locations_map = locations_map
 
     # receives array with trash collector agents and maps their jids to whether or not they are being used on the road (boolean)
@@ -136,5 +128,3 @@ class CollectionCenter(agent.Agent):
         best_path, cost_array, routes_array = self.locations_map.find_best_path(self.trash_occupancies, elapsed_time_collection, excluded_locations, collector_capacity=None)
         return best_path, cost_array, routes_array
 
-    def log_text(self, text):
-        self.log.log(text)
