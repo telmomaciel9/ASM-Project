@@ -11,7 +11,6 @@ class CollectTrash_Behav(OneShotBehaviour):
         self.routes = routes
 
     async def on_start(self):
-        print("on start)")
         self.collection_center_pos = self.agent.jid_to_position_dict[self.get("center_jid")]
 
     async def run(self):
@@ -88,13 +87,11 @@ class CollectTrash_Behav(OneShotBehaviour):
     async def go_to_location(self, location, route):
         # go to next_location
         print("{}: Going to {}".format(self.agent.name, jid_to_name(location)))
-        #print(f"route is {route}")
         # destination position is the position of the collection center agent
         destination_pos = self.agent.jid_to_position_dict[location]
         self.agent.go_to_position(route)
         while self.agent.position != destination_pos:
             await asyncio.sleep(0.1)  # Use asyncio.sleep instead of time.sleep
-        #print("{}: Arrived to {}".format(self.agent.name, jid_to_name(location)))
         await self.inform_next_location(location)
 
         # wait for the reply of the next location

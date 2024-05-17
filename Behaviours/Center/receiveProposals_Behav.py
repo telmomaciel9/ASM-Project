@@ -12,10 +12,8 @@ class ReceiveProposals_Behav(OneShotBehaviour):
 
 
     async def run(self):
-        #print("num_collectors -", self.num_available_collectors)
         while self.received_proposals < self.num_available_collectors:
             msg = await self.receive(timeout=1)
-            #print("received proposal")
             if msg and msg.get_metadata("performative") == "propose":
                 collector_jid = str(msg.sender)
                 data = json.loads(msg.body)
