@@ -7,19 +7,19 @@ class Log:
         init(autoreset=True)
 
         self.timestamp_color = Fore.BLUE
-
-        if agent == "center":
+        
+        if "center" in agent:
             self.color = Fore.GREEN
-            self.agent = "Center"
-        elif agent == "collector":
+            self.agent = agent
+        elif "collector" in agent:
             self.color = Fore.RED
-            self.agent = "Collector"
-        elif agent == "trash":
+            self.agent = agent
+        elif "trash" in agent:
             self.color = Fore.YELLOW
-            self.agent = "Trash"
+            self.agent = agent
         else:
             self.color = None
-
+            self.agent = None
 
     def log(self, text):
         timestamp = datetime.datetime.now()

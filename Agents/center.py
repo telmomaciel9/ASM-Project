@@ -21,8 +21,10 @@ class CollectionCenter(agent.Agent):
     available_collectors = {}
     # maps the jid of collectors to the path they are currently collecting trash
     collector_to_path = {}
-    # logging
-    log = Log("center")
+
+    def __init__(self, jid, password):
+        super().__init__(jid, password)
+        self.log = Log(self.name)
 
     async def setup(self):
         self.log_text(str(self.jid) + "starting...")

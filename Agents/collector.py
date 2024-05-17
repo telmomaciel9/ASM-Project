@@ -9,9 +9,12 @@ from log import Log
 from spade.template import Template
 
 class TrashCollector(agent.Agent):
-    log = Log("collector")
 
-    async def setup(self):
+    def __init__(self, jid, password):
+        super().__init__(jid, password)
+        self.log = Log(self.name)
+
+    async def setup(self): 
         self.log_text(str(self.jid) + " starting...")
         # print("Trash Collector Agent {}".format(str(self.jid)) + " starting...")
         
