@@ -12,11 +12,8 @@ class Trash(agent.Agent):
     trash_capacity = 100
     current_occupancy = 0
 
-    def __init__(self, jid, password):
-        super().__init__(jid, password)
-        self.log = Log(self.name)
-
     async def setup(self):
+        self.log = Log(self.name)
         # print("Trash Agent '{}'".format(str(self.jid)) + " starting...")
         self.log_text(str(self.jid) + " starting...")
 
