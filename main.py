@@ -111,6 +111,7 @@ if __name__ == '__main__':
             (agent.stop() for agent in trash_agents)
             (agent.stop() for agent in collector_agents)
             center_agent.stop()
+            simulator.stop()
             break
     print('Agents finished')
     # finish all the agents and behaviors running in your process

@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import tkinter as tk
 from PIL import Image, ImageTk
 from geopy.distance import geodesic
+import time
 
 def _download_map_area(position, distance):
     """ Download a square map of 'distance' meters around the 'point' """
@@ -104,6 +105,9 @@ class Simulator:
             # Create a text item for each trash to display occupancy
             trash_text = self.canvas.create_text(center_location.tuple(), text="0 kg", anchor="s", fill='white')
             self.trash_texts.append(trash_text)
+        
+        # Record the start time
+        self.start_time = time.time()
 
     def calculate_center_distance(self, trash_positions, center_location):
         center_coords = center_location.tuple()
@@ -134,3 +138,11 @@ class Simulator:
             self.canvas.itemconfig(self.trash_texts[i], text=f"{occupancy:.2f} kg", fill=color)
             self.canvas.coords(self.trash_texts[i], position_pixels[0], position_pixels[1] - 10)
         self.root.update_idletasks()
+
+    def stop(self):
+        # Calculate the elapsed time
+        elapsed_time = time.time() - self.start_time
+        # Print the elapsed time
+        print(f"Simulation ended. Elapsed time: {elapsed_time:.2f} seconds.")
+        # Destroy the Tkinter window
+        self.root.destroy()
