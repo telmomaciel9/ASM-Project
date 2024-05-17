@@ -5,7 +5,6 @@ import datetime
 from Behaviours.Center.receiveMessages_Behav import ReceiveMessages_Behav
 from Behaviours.Center.proposalsCollectors_Behav import ProposeCollectors_Behav
 from log import Log
-from colorama import Fore, Style, init
 
 """
 In the simulation, there is only one collection center.
@@ -23,8 +22,11 @@ class CollectionCenter(agent.Agent):
     # maps the jid of collectors to the path they are currently collecting trash
     collector_to_path = {}
 
-    async def setup(self):
+    def __init__(self, jid, password):
+        super().__init__(jid, password)
         self.log = Log(self.name)
+
+    async def setup(self):
         self.log_text(str(self.jid) + "starting...")
         # print("Collection Center Agent {}".format(str(self.jid)) + " starting...")
         
@@ -60,7 +62,7 @@ class CollectionCenter(agent.Agent):
         return collector_jids
 
     def set_map(self, locations_map):
-        print(Fore.GREEN + f"{self.name}: Set location map" + Style.RESET_ALL)
+        self.log_text("Set location map")
         # print("Collection Center: Set location map")
         self.locations_map = locations_map
 

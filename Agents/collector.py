@@ -6,13 +6,15 @@ import time
 from config import Config
 from log import Log
 
-from colorama import Fore, Style, init
 from spade.template import Template
 
 class TrashCollector(agent.Agent):
 
-    async def setup(self): 
+    def __init__(self, jid, password):
+        super().__init__(jid, password)
         self.log = Log(self.name)
+
+    async def setup(self): 
         self.log_text(str(self.jid) + " starting...")
         # print("Trash Collector Agent {}".format(str(self.jid)) + " starting...")
         
@@ -49,7 +51,8 @@ class TrashCollector(agent.Agent):
             self.position = new_pos
 
     def set_map(self, locations_map):
-        print(Fore.RED + f"{self.name}: Set location map" + Style.RESET_ALL)
+        self.log_text("Set location map")
+        # print("Trash Collector: Set location map")
         self.locations_map = locations_map
 
     def go_to_position(self, route):
