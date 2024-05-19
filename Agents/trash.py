@@ -5,6 +5,7 @@ from Behaviours.Trash.disposeTrash_Behav import DisposeTrash_Behav
 
 from datetime import datetime
 import random
+from logs import log_trash  # Import the logging function
 
 class Trash(agent.Agent):
 
@@ -12,7 +13,7 @@ class Trash(agent.Agent):
     current_occupancy = 0
 
     async def setup(self):
-        print("Trash Agent '{}'".format(str(self.jid)) + " starting...")
+        log_trash(str(self.jid), "starting...")
 
         self.trash_capacity = 100 # max trash capacity
 

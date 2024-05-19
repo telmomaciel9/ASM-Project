@@ -4,13 +4,14 @@ import threading
 from Classes.Position import interpolate_points, Position
 import time
 from config import Config
+from logs import log_collector  # Import the logging function
 
 from spade.template import Template
 
 class TrashCollector(agent.Agent):
 
     async def setup(self):
-        print("Trash Collector Agent {}".format(str(self.jid)) + " starting...")
+        log_collector(str(self.jid), "starting...")
         
         self.n_trips = 0 # number of times this collector has gathered trash
         self.current_occupancy = 0 # current occupancy of the collector (max is collector_capacity)

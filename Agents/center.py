@@ -2,6 +2,8 @@ from spade import agent
 from spade.template import Template
 import datetime
 
+from logs import log_center  # Import the logging function
+
 from Behaviours.Center.receiveMessages_Behav import ReceiveMessages_Behav
 from Behaviours.Center.proposalsCollectors_Behav import ProposeCollectors_Behav
 
@@ -22,8 +24,8 @@ class CollectionCenter(agent.Agent):
     collector_to_path = {}
 
     async def setup(self):
-        print("Collection Center Agent {}".format(str(self.jid)) + " starting...")
-        
+        log_center(str(self.jid), "starting...")
+
         if self.get("position"):
             self.position = self.get("position")
         else:
