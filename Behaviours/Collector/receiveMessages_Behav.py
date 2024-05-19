@@ -10,7 +10,7 @@ from spade.template import Template
 
 from Behaviours.Collector.collectTrash_Behav import CollectTrash_Behav
 
-
+from logs import log_collector
 from util import jid_to_name
 import time
 import asyncio  # Import asyncio for asyncio.sleep
@@ -33,12 +33,12 @@ class ReceiveMessages_Behav(CyclicBehaviour):
             elif performative == 'cfp':
                 await self.handle_cfp(data)
             else:
-                print("Agent {}:".format(str(self.agent.name)) + " Message not understood!")
+                log_collector(str(self.agent.jid), "Message not understood!")
 
     async def handle_accept_proposal(self, data):
         path = data["path"]
         routes = data["routes"]
-        print(f"{self.agent.name}: Accepted proposal. Path is {path}")
+        log_collector(str(self.agent.jid), f"Accepted proposal. Path is {path}")
 
         # increase the number of trips done by this collector
         self.agent.n_trips += 1

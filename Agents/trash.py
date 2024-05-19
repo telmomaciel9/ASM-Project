@@ -26,7 +26,7 @@ class Trash(agent.Agent):
         if self.get("position"):
             self.position = self.get("position")
         else:
-            print(f"Trash Agent {self.jid}: position not defined!")
+            log_trash(str(self.jid), "position not defined!")
 
         a = InformCapacity_Behav(period = 1)
         b = DisposeTrash_Behav()

@@ -19,12 +19,12 @@ class TrashCollector(agent.Agent):
         if self.get("position"):
             self.position = self.get("position")
         else:
-            print(f"Trash Collector Agent {self.jid}: position not defined!")
+            log_collector(str(self.jid), "position not defined!")
             
         if self.get("positions"):
             self.jid_to_position_dict = self.get("positions")
         else:
-            print(f"Trash Collector Agent {self.jid}: positions dict not defined!")
+            log_collector(str(self.jid), "positions dict not defined!")
 
         config = Config()
         self.jump_size = config.jump_size
@@ -44,7 +44,7 @@ class TrashCollector(agent.Agent):
             self.position = new_pos
 
     def set_map(self, locations_map):
-        print("Trash Collector: Set location map")
+        log_collector(str(self.jid), "Set location map")
         self.locations_map = locations_map
 
     def go_to_position(self, route):

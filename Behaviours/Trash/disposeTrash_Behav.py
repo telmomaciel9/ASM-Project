@@ -3,7 +3,7 @@ from spade.behaviour import CyclicBehaviour
 from util import jid_to_name
 import json
 from datetime import datetime
-
+from logs import log_trash
 """
 Trash Agent behaviour
 This behaviour is responsible for:
@@ -23,7 +23,7 @@ class DisposeTrash_Behav(CyclicBehaviour):
                 data = json.loads(msg.body)
                 max_additional_capacity = data["max_additional_capacity"]
                 trash_to_dispose = min(max_additional_capacity, self.agent.current_occupancy)
-                print(f"{self.agent.name}: Disposing {trash_to_dispose:.2f}kg to {jid_to_name(collector_jid)}")
+                log_trash(str(self.agent.jid), f"Disposing {trash_to_dispose:.2f}kg to {jid_to_name(collector_jid)}")
 
                 # deduct the trash to dispose from the current trash occupancy
                 self.agent.current_occupancy -= trash_to_dispose

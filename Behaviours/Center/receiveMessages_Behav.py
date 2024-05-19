@@ -4,7 +4,7 @@ from spade.behaviour import CyclicBehaviour
 import asyncio
 import json
 from util import jid_to_name
-
+from logs import log_center
 
 """
 Collection Center Agent Behaviour
@@ -30,9 +30,9 @@ class ReceiveMessages_Behav(CyclicBehaviour):
             elif performative == 'collector_inform':
                 await self.handle_collector_inform(sender_jid)
             else:
-                print("Agent {}:".format(str(self.agent.name)) + " Message not understood!, performative - '" + performative + "'")
+                log_center(str(self.agent.jid), f"Message not understood!, performative - '{performative}'")
         else:
-            print("Agent {}:".format(str(self.agent.name)) + "Did not received any message after 10 seconds")
+            log_center(str(self.agent.jid), "Did not received any message after 10 seconds")
 
     async def handle_inform_trash_occupancy(self, data, trash_jid):
         occupancy = data["current_occupancy"]
@@ -43,12 +43,12 @@ class ReceiveMessages_Behav(CyclicBehaviour):
     async def handle_inform_collector_capacity(self, data, collector_jid):
         remaining_capacity = data["remaining_capacity"]
         collector_location = data["current_location"]
-        print(f"Center: {jid_to_name(collector_jid)} is at {jid_to_name(collector_location)}")
+        log_center(str(self.agent.jid), f"{jid_to_name(collector_jid)} is at {jid_to_name(collector_location)}")
         self.agent.collector_remaining_capacities[collector_jid] = remaining_capacity
         self.agent.update_excluded_locations(collector_jid, collector_location, remaining_capacity)
 
     async def handle_collector_inform(self, collector_jid):
-        print(f"Center: {jid_to_name(collector_jid)} has returned to the Collection Center!")
+        log_center(str(self.agent.jid), f"{jid_to_name(collector_jid)} has returned to the Collection Center!")
         # this trash collector has returned, so we set its availability to True
         self.agent.set_collector_availability(collector_jid, True)
         # setup answer message to trash collector agent

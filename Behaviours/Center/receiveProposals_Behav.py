@@ -2,6 +2,7 @@ from spade.behaviour import OneShotBehaviour
 from spade.message import Message
 import json
 from util import jid_to_name
+from logs import log_center
 
 class ReceiveProposals_Behav(OneShotBehaviour):
     def __init__(self, num_available_collectors, *args, **kwargs):
@@ -32,10 +33,10 @@ class ReceiveProposals_Behav(OneShotBehaviour):
             if len(best_path) > 2 and self.agent.available_collectors[best_collector_jid]:
                 # the collector is only sent if the path has more than two nodes, and the collector is available.
                 # The start and end nodes are always the CollectionCenter, so we don't send the collector if it's only those two nodes
-                print(f"Center: Accepting proposal of {jid_to_name(best_collector_jid)}")
+                log_center(str(self.agent.jid), f"Accepting proposal of {jid_to_name(best_collector_jid)}")
                 await self.request_collector(best_collector_jid, best_path, routes)
         else:
-            print("Center: No collectors have responded with a path.")
+            log_center(str(self.agent.jid), "No collectors have responded with a path.")
 
     """
     Given the jid of a collector, a path, and a route, request the collector to go on the specified path route

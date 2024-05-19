@@ -29,7 +29,7 @@ class CollectionCenter(agent.Agent):
         if self.get("position"):
             self.position = self.get("position")
         else:
-            print("Collection Center: position not defined!")
+            log_center(str(self.jid), "position not defined!")
 
         a = ReceiveMessages_Behav()
 
@@ -57,7 +57,7 @@ class CollectionCenter(agent.Agent):
         return collector_jids
 
     def set_map(self, locations_map):
-        print("Collection Center: Set location map")
+        log_center(str(self.jid), "Set location map")
         self.locations_map = locations_map
 
     # receives array with trash collector agents and maps their jids to whether or not they are being used on the road (boolean)
